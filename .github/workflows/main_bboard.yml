@@ -21,14 +21,19 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Set execute permissions on gradlew
+        run: chmod +x ./backend/gradlew
 
+      - name: Build with Gradle
+        run: |
+          cd backend
+          ./gradlew build
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: './backend/build/libs/*.jar'
 
   deploy:
     runs-on: windows-latest
@@ -38,6 +43,11 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
@@ -51,3 +61,4 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_92FC6BD9E88D4957B2B2507616A7152E }}
           package: '*.jar'
+
