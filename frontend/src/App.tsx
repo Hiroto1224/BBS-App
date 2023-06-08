@@ -1,8 +1,24 @@
-import React from 'react';
+import React, {useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const url = "https://bboard.azurewebsites.net/test"
+const GetData = async () => {
+  const res = await fetch(url);
+  const data = await res.text();
+  return data;
+}
+
 function App() {
+  const [todo, setTodos] = useState<string>();
+  useEffect(() => {
+    GetData().then(fetchData => {
+
+      setTodos(fetchData)
+    });
+
+  }, [setTodos]);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -18,6 +34,7 @@ function App() {
         >
           Learn React
         </a>
+        <p> {todo}</p>
       </header>
     </div>
   );
