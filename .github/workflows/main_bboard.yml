@@ -1,59 +1,49 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy JAR app to Azure Web App - BBoard
+name: Build and Deploy to Azure Functions
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+    paths:
+      - 'backend/**'  # backendフォルダ以下の変更のみを監視
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v2
 
-      - name: Set up Java version
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
+    - name: 'Setup Java'
+      uses: actions/setup-java@v1
+      with:
+        java-version: '17'
 
-      - name: Set execute permissions on gradlew
-        run: chmod +x ./backend/gradlew
-
-      - name: Build with Gradle
-        run: |
-          cd backend
-          ./gradlew build
+    - name: 'Build Project'
+      run: |
+        cd backend
+        chmod +x ./gradlew
+        ./gradlew build
       
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
-        with:
-          name: java-app
-          path: './backend/build/libs/*.jar'
+    - name: 'Upload artifact for deployment job'
+      uses: actions/upload-artifact@v2
+      with:
+        name: java-app
+        path: './backend/build/libs/*.jar'
+    
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    - name: 'Deploy to Azure Functions'
+      uses: azure/functions-action@v1
+      id: fa
+      with:
+        app-name: 'BBoard'
+        package: './backend/build/libs/'
+        publish-profile: ${{ secrets.AZURE_FUNCTIONS_PUBLISH_PROFILE }}
 
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v2
-        with:
-          name: java-app
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'BBoard'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_92FC6BD9E88D4957B2B2507616A7152E }}
-          package: 'backend-0.0.1-SNAPSHOT.jar'
-
+    - name: 'Logout of Azure CLI'
+      run: az logout
