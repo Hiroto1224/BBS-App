@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'  # backendフォルダ以下の変更のみを監視      
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
