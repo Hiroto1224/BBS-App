@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -32,8 +33,8 @@ public class ChatController {
 
     @PostMapping("/chatData")
     public ChatData createChatData(@RequestBody ChatData chatData){
-
-        
+        LocalDateTime now = LocalDateTime.now();
+        chatData.setTimestamp(now);
         return chatDataRepository.save(chatData);
     }
 
@@ -50,7 +51,6 @@ public class ChatController {
         ChatData chatData = chatDataOp.get();
         chatData.setMessage(chatDataDto.getMessage());
         chatData.setTimestamp(chatDataDto.getTimestamp());
-        chatData.setId(chatDataDto.getId());
 
         final ChatData updateChatData = chatDataRepository.save(chatData);
         return ResponseEntity.ok(updateChatData);

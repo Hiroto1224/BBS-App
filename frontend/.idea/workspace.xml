@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90159db2-4b50-49e0-9051-ee58c211e9bf" name="変更" comment="">
-      <change afterPath="$PROJECT_DIR$/../backend/src/main/java/com/backend/Model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/com/example/backend/BackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/com/backend/BackendApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../backend/src/test/java/com/example/backend/BackendApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/test/java/com/backend/BackendApplicationTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/src/main/java/com/backend/Model/RoomData.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +33,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "feature__DBTest",
+    "git-widget-placeholder": "feature__Backend__Controller",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/systemi/BBS-App/frontend",
     "node.js.detected.package.eslint": "true",
@@ -46,7 +43,7 @@
     "nodejs.jest.jest_package": "",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "C:\\Users\\systemi\\AppData\\Local\\JetBrains\\Toolbox\\apps\\WebStorm\\ch-0\\231.9011.35\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "ts.external.directory.path": "C:\\Users\\81802\\AzureApp\\BBoard\\frontend\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>

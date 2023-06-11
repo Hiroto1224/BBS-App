@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
-@Document(collation = "chat")
+@Document(collation = "chatData")
 public class ChatData {
     @Id
     private String id;
