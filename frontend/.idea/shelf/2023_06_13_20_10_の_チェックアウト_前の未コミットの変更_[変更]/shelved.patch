@@ -1,0 +1,16 @@
+Index: ../backend/.idea/modules.xml
+===================================================================
+diff --git a/../backend/.idea/modules.xml b/../backend/.idea/modules.xml
+deleted file mode 100644
+--- a/../backend/.idea/modules.xml	(revision c31fd03b73c8109f2ad3019d369cafb0b746b0a5)
++++ /dev/null	(revision c31fd03b73c8109f2ad3019d369cafb0b746b0a5)
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ProjectModuleManager">
+-    <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/backend.main.iml" />
+-    </modules>
+-  </component>
+-</project>
+\ No newline at end of file

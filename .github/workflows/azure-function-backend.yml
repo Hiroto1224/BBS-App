@@ -1,11 +1,6 @@
 name: Azure Functions CICD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'  # backendフォルダ以下の変更のみを監視
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
