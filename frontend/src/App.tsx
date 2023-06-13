@@ -1,43 +1,27 @@
 import React, {useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import Register from './Register';
+import Home from './Home';
+import Login from './Login';
 
 const url = "https://bboard.azurewebsites.net/test"
-const GetData = async () => {
-  const res = await fetch(url);
-  const data = await res.text();
-  return data;
-}
+
 
 function App() {
-  const [todo, setTodos] = useState<string>();
-  useEffect(() => {
-    GetData().then(fetchData => {
-
-      setTodos(fetchData)
-    });
-
-  }, [setTodos]);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <p> Test : {todo}</p>
-      </header>
-    </div>
-  );
+      <BrowserRouter>
+          <Routes>
+              <Route path={'/'} element={<Home />} />
+              <Route path={'/register/'} element={<Register />} />
+              <Route path={'/login/'} element={<Login />} />
+          </Routes>
+      </BrowserRouter>
+
+  )
+
 }
 
 export default App;
