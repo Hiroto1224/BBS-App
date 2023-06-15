@@ -1,69 +1,44 @@
-import {Typography, Toolbar, Grid, ListSubheader, List, ListItem, ListItemButton} from '@mui/material'
 import React from 'react'
-import {Sheet} from "@mui/joy";
 
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
+import {ChatContainer, ConversationHeader,
+    InfoButton, MainContainer, Message, MessageInput,
+    MessageList, VideoCallButton, VoiceCallButton }
+    from '@chatscope/chat-ui-kit-react'
 
 const ChatRoom = () => {
 
     const viewTodos:string[] = [ 'test', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2', 'test2' ]
 
-
     return (
-        <>
-            <Toolbar>
-                <Typography variant="h6" component="div" style={{flexGrow: "1"}}>
-                    Test
-                </Typography>
-            </Toolbar>
-            <Grid container spacing={2}>
-                <Grid item xs={1}></Grid>
-                <Grid item xs={3}>
-                    <Sheet
-                        variant="outlined"
-                        sx={{
-                            width: 320,
-                            maxHeight: 600,
-                            overflow: 'auto',
-                            borderRadius: 'sm',
-                        }}
-                    >
-                        <ListSubheader></ListSubheader>
-                        <List>
-                            {viewTodos.map(todo => (
-                                <Grid item xs={12}>
-                                    <ListItem >
-                                        {todo}
-                                    </ListItem>
-                                </Grid>
-                            ))}
-                        </List>
-                    </Sheet>
-                </Grid>
-                <Grid item xs={1}></Grid>
-                <Grid item xs={7}>
-                    <Sheet
-                        variant="outlined"
-                        sx={{
-                            width: 840,
-                            maxHeight: 600,
-                            overflow: 'auto',
-                            borderRadius: 'sm',
-                        }}
-                    >
-                        <ListSubheader></ListSubheader>
-                        <List>
-                            {viewTodos.map(todo => (
-                                <Grid item xs={12}>
-                                    <ListItem >
-                                        {todo}
-                                    </ListItem>
-                                </Grid>
-                            ))}
-                        </List>
-                    </Sheet>
-                </Grid>
-            </Grid>
-        </>
+        <div style={{ position: "relative",height:"500px"}}>
+            <MainContainer style={{fontSize: "1em"}}>
+                <ChatContainer>
+                    <ConversationHeader>
+                        <ConversationHeader.Content userName="Test" info="Active 10 mins ago" />
+                        <ConversationHeader.Actions>
+                            <VoiceCallButton />
+                            <VideoCallButton />
+                            <InfoButton />
+                        </ConversationHeader.Actions>
+                    </ConversationHeader>
+                    <MessageList>
+                        <Message
+                            model={{
+                                message: 'Hello my friend',
+                                sentTime: 'just now',
+                                sender: 'Joe',
+                                direction: 0,
+                                position: "single"
+                            }} >
+                            <Message.Footer sender="Emily" sentTime="just now" />
+                        </Message>
+                    </MessageList>
+                    <MessageInput placeholder="Type Message here"/>
+                </ChatContainer>
+            </MainContainer>
+
+        </div>
     );
 }
 
