@@ -12,16 +12,21 @@ public class ChatData {
     @Id
     private String id;
     private String message;
-
     private LocalDateTime timestamp;
+    private String sendUserId;
+    private String roomId;
+
+
 
     public ChatData() {
     }
 
-    public ChatData(String id, String message, LocalDateTime timestamp) {
+    public ChatData(String id, String message, LocalDateTime timestamp,String sendUserId,String roomId) {
         this.id = id;
         this.message = message;
         this.timestamp = timestamp;
+        this.sendUserId = sendUserId;
+        this.roomId = roomId;
     }
 
     public String getId() {
@@ -46,5 +51,21 @@ public class ChatData {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getSendUserId() {
+        return sendUserId;
+    }
+
+    public void setSendUserId(String sendUserId) {
+        this.sendUserId = sendUserId;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 }
