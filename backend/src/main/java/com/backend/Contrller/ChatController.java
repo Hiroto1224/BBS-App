@@ -31,6 +31,12 @@ public class ChatController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/roomData/{id}/ChatData")
+    public List<ChatData> getChatDataByRoomId(@PathVariable(value = "id")String id){
+        return chatDataRepository.findAll().stream().filter(data -> data.getRoomId().equals(id))
+                .toList();
+    }
+
     @PostMapping("/chatData")
     public ChatData createChatData(@RequestBody ChatData chatData){
         LocalDateTime now = LocalDateTime.now();
