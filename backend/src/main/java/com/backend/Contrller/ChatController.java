@@ -77,5 +77,14 @@ public class ChatController {
         return response;
     }
 
+    public ChatData getLastChatData(String id){
+        List<ChatData> chatDataList = getChatDataByRoomId(id);
+        if(chatDataList.isEmpty()){
+            return null;
+        }
+
+        return chatDataList.get(chatDataList.size() - 1);
+    }
+
 
 }

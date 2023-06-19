@@ -1,22 +1,27 @@
 package com.backend.Contrller;
 
+import com.backend.Model.ChatData;
 import com.backend.Model.RoomData;
+import com.backend.Model.SideBarData;
+import com.backend.Model.User;
 import com.backend.Repository.RoomDataRepository;
+import com.backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1")
 public class RoomDataController {
     @Autowired
     private RoomDataRepository roomDataRepository;
+    @Autowired
+    private ChatController chatController;
+    @Autowired
+    private UserController userController;
 
     @GetMapping("/roomData")
     public List<RoomData> getRoomData() {return roomDataRepository.findAll(); }
@@ -26,6 +31,29 @@ public class RoomDataController {
         return roomDataRepository.findById(id).map(value ->
                         new ResponseEntity<>(value, HttpStatus.OK))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/roomData/sideBar")
+    public List<SideBarData> getSideBarData(){
+        List<SideBarData> sideBarDataList = new ArrayList<>();
+
+        List<RoomData> roomDataList = roomDataRepository.findAll();
+
+        roomDataList.forEach(roomData -> {
+            ChatData chatData = chatController.getLastChatData(roomData.getId());
+            if(chatData != null) {
+                User user = userController.getUserById(chatData.getSendUserId()).getBody();
+                SideBarData sideBarData = new SideBarData(roomData.getId(), roomData.getName(), chatData.getMessage(), Objects.requireNonNull(user).getFirstName());
+
+                sideBarDataList.add(sideBarData);
+            }else{
+                SideBarData sideBarData = new SideBarData(roomData.getId(), roomData.getName(), "", "");
+
+                sideBarDataList.add(sideBarData);
+            }
+        });
+
+        return sideBarDataList;
     }
 
     @PostMapping("/roomData")

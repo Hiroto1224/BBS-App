@@ -1,31 +1,44 @@
 
-import { ConversationList, Search, Sidebar} from "@chatscope/chat-ui-kit-react";
-/*
-import React from "react";
+import { ConversationList, Search, Sidebar, Conversation} from "@chatscope/chat-ui-kit-react";
+import React, {useState} from "react";
 import useSWR from 'swr'
+import {ConversationParent} from "./Conversation";
+
+
+interface SideBarData {
+    id: string
+    name: string
+    senderName: string
+    message: string
+    active: boolean
+}
 
 const fetcher = (url:string): Promise<any[]> => fetch(url,{method: 'Get', mode: "cors"}
-).then(res => res.json())*/
-/*
+).then(res => res.json())
 export const SideBar = () => {
 
-    // @ts-ignore
+    const { data: sideBarData, error, isLoading } = useSWR('http://localhost:8080/api/v1/roomData/sideBar', fetcher)
 
+    if(!sideBarData) return <></>
 
-    if(roomData != undefined) {
+    console.log(sideBarData)
+
+    const handleConversationClick = (conversation: string) => {
+
+    };
+
     return (
-        <Sidebar position="left" scrollable={false}>
+        <Sidebar key={sideBarData.length} position="left" scrollable={false}>
             <Search placeholder="Search..." />
             <ConversationList key={"conversationList"}>
-                {roomData.map(data =>
-                    <Conversation key={data.id} name={data.name} id={data.id} userIds={data.userIds} />
-                    )}
+                {sideBarData.map(data =>
+                    <ConversationParent
+                        conversation={data}
+                        onClick={handleConversationClick}/>
+                )}
 
             </ConversationList>
         </Sidebar>
     )
-    }
 
-    return <></>
-
-}*/
+}
