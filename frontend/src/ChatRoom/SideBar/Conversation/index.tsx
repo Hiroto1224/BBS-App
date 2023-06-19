@@ -1,27 +1,34 @@
 import React from "react";
-import { Conversation as CS } from "@chatscope/chat-ui-kit-react"
+import { Conversation } from "@chatscope/chat-ui-kit-react"
 
 import useSWR from 'swr'
 
-interface RoomData{
-    id: string,
-    name: string,
-    userIds: string[]
+interface ConversationData{
+    roomId: string,
+    roomName: string,
+    senderName: string,
+    message: string
+    active: boolean
 }
 
-/*
-const fetcherone = (url:string): Promise<any> => fetch(url,{method: 'Get', mode: "cors"}
-).then(res => res.json())
-export const Conversation = (props: RoomData) => {
+interface ConversationProps{
+    conversation: ConversationData,
+    onClick: (conversationId: string) => void
+}
 
-
-    if (!chatData) return <></>
-
-    if (!userData) return <></>
+export const ConversationParent: React.FC<ConversationProps> = ({ conversation,onClick }) => {
+    const handleClick: React.MouseEventHandler<HTMLDivElement> = () => {
+        onClick(conversation.roomId);
+    };
 
     return (
-        <CS key={chatData.at(1).id} name={props.name} lastSenderName={userData.firstName}
-            info={chatData.at(chatData.length - 1).message}
-            active/>
+        <div onClick={handleClick}>
+        <Conversation key={conversation.roomId}
+                      name={conversation.roomName}
+                      lastSenderName={conversation.senderName}
+                      info={conversation.message}
+                      active={conversation.active}
+                      />
+        </div>
     )
-}*/
+}
