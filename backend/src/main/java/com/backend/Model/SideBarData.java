@@ -10,6 +10,8 @@ public class SideBarData {
 
     String senderName;
 
+    boolean active;
+
     public SideBarData() {
     }
 
@@ -18,6 +20,7 @@ public class SideBarData {
         this.roomName = roomName;
         this.message = message;
         this.senderName = senderName;
+        this.active = false;
     }
 
     public String getRoomId() {
@@ -52,4 +55,11 @@ public class SideBarData {
         this.senderName = senderName;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }
