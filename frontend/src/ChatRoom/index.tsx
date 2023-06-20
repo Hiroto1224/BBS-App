@@ -9,6 +9,7 @@ import {
     from '@chatscope/chat-ui-kit-react'
 import { SideBar } from './SideBar'
 import useSWR from 'swr'
+import {Conversation} from "./Conversation/Conversation";
 
 
 const ChatRoom = () => {
@@ -21,9 +22,9 @@ const ChatRoom = () => {
         <div style={{ position: "relative",height:"569px"}}>
             <MainContainer responsive>
                 <SideBar focusConv={focusConv} setFocusConv={setFocusConv}/>
-                <ChatContainer>
+                {/*<ChatContainer>
                     <ConversationHeader>
-                        <ConversationHeader.Content userName="Test" info="Active 10 mins ago" />
+                        <ConversationHeader.Content userName="Test" info="Active 10 mins ago"/>
                     </ConversationHeader>
                     <MessageList>
                         <Message
@@ -120,7 +121,8 @@ const ChatRoom = () => {
                         </Message>
                     </MessageList>
                     <MessageInput placeholder="Type Message here"/>
-                </ChatContainer>
+                </ChatContainer>*/}
+                <Conversation focusConv={focusConv}/>
             </MainContainer>
 
         </div>
