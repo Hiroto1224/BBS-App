@@ -3,9 +3,9 @@ import {  Search, Sidebar } from "@chatscope/chat-ui-kit-react";
 import React from "react";
 import useSWR from 'swr'
 import {ConversationParent} from "./Conversation";
+import {fetcher} from "../../Component/fetcher";
 
-const fetcher = (url:string): Promise<any[]> => fetch(url,{method: 'Get', mode: "cors"}
-).then(res => res.json())
+
 
 interface ConversationProps{
     focusConv: string,
