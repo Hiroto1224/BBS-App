@@ -23,6 +23,7 @@ export const ConversationParent: React.FC<ConversationProps> = ({ conversation,o
 
     return (
         <div onClick={handleClick}>
+<<<<<<< Updated upstream
         <Conversation key={conversation.roomId}
                       name={conversation.roomName}
                       lastSenderName={conversation.senderName}
@@ -30,5 +31,13 @@ export const ConversationParent: React.FC<ConversationProps> = ({ conversation,o
                       active={conversation.active}
                       />
         </div>
+=======
+            <Conversation key={conversation.roomId}
+                          name={conversation.roomName}
+                          lastSenderName={conversation.senderName}
+                          info={conversation.message}
+                          active={conversation.active}
+            />        </div>
+>>>>>>> Stashed changes
     )
 }
