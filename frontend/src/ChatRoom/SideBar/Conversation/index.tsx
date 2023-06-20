@@ -2,9 +2,14 @@ import React from "react";
 import { Conversation } from "@chatscope/chat-ui-kit-react"
 
 import useSWR from 'swr'
-import { ConversationData } from "../Model/ConversationData";
 
-
+interface ConversationData{
+    roomId: string,
+    roomName: string,
+    senderName: string,
+    message: string
+    active: boolean
+}
 
 interface ConversationProps{
     conversation: ConversationData,
@@ -15,10 +20,15 @@ export const ConversationParent: React.FC<ConversationProps> = ({ conversation,o
     const handleClick: React.MouseEventHandler<HTMLDivElement> = () => {
         onClick(conversation.roomId);
     };
-    console.log(conversation.active)
+
     return (
         <div onClick={handleClick}>
-
+        <Conversation key={conversation.roomId}
+                      name={conversation.roomName}
+                      lastSenderName={conversation.senderName}
+                      info={conversation.message}
+                      active={conversation.active}
+                      />
         </div>
     )
 }
