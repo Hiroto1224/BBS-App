@@ -1,6 +1,12 @@
 
+<<<<<<< Updated upstream
 import { ConversationList, Search, Sidebar, Conversation} from "@chatscope/chat-ui-kit-react";
 import React, {useState} from "react";
+=======
+import {ConversationList, Search, Sidebar, Conversation, ConversationHeader} from "@chatscope/chat-ui-kit-react";
+import axios, {AxiosError, AxiosResponse } from "axios";
+import React, {useEffect, useState} from "react";
+>>>>>>> Stashed changes
 import useSWR from 'swr'
 import {ConversationParent} from "./Conversation";
 
@@ -24,6 +30,13 @@ export const SideBar = () => {
     console.log(sideBarData)
 
     const handleConversationClick = (conversation: string) => {
+<<<<<<< Updated upstream
+=======
+
+        }
+        console.log(sidebarData)
+    };
+>>>>>>> Stashed changes
 
     };
 
@@ -31,11 +44,17 @@ export const SideBar = () => {
         <Sidebar key={sideBarData.length} position="left" scrollable={false}>
             <Search placeholder="Search..." />
             <ConversationList key={"conversationList"}>
+<<<<<<< Updated upstream
                 {sideBarData.map(data =>
                     <ConversationParent
                         conversation={data}
                         onClick={handleConversationClick}/>
                 )}
+=======
+                {sidebarData.map((list: any[]) => list.map((data: ConversationData) =>
+                    <ConversationParent conversation={data} onClick={handleConversationClick} />
+                )) }
+>>>>>>> Stashed changes
 
             </ConversationList>
         </Sidebar>
