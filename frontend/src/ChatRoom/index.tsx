@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
 import {
@@ -13,11 +13,14 @@ import useSWR from 'swr'
 
 const ChatRoom = () => {
 
+    const [focusConv,setFocusConv] = useState("");
+
+
 
     return (
         <div style={{ position: "relative",height:"569px"}}>
             <MainContainer responsive>
-                <SideBar />
+                <SideBar focusConv={focusConv} setFocusConv={setFocusConv}/>
                 <ChatContainer>
                     <ConversationHeader>
                         <ConversationHeader.Content userName="Test" info="Active 10 mins ago" />
