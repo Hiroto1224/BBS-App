@@ -18,19 +18,7 @@ export const MessageManager: React.FC<MessageManagerProps> = ({roomId}) => {
 
     return (
         <>
-            <MessageList>
-                {messageData.map(data =>
-                    <Message
-                        model={{
-                            message: data.message,
-                            sentTime: data.timeStamp,
-                            sender: data.sendUserId,
-                            direction: "incoming",
-                            position: "single"
-                        }}
-                    />
-                )}
-            </MessageList>
+
 
         </>
     )
