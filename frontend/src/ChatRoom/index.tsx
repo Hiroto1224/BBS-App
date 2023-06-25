@@ -10,13 +10,12 @@ import {
 import { SideBar } from './SideBar'
 import useSWR from 'swr'
 import {Conversation} from "./Conversation/Conversation";
+import {roomDataFetcher} from "../Component/fetcher";
 
 
 const ChatRoom = () => {
 
     const [focusConv,setFocusConv] = useState("");
-
-
 
     return (
         <div style={{ position: "relative",height:"569px"}}>

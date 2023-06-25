@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -35,6 +36,21 @@ public class ChatController {
     public List<ChatData> getChatDataByRoomId(@PathVariable(value = "id")String id){
         return chatDataRepository.findAll().stream().filter(data -> data.getRoomId().equals(id))
                 .toList();
+    }
+    @GetMapping("/roomData/{id}/ChatData/{lastChatId}")
+    public List<ChatData> getChatDataByChatID(@PathVariable(value = "id")String id,@PathVariable(value = "lastChatId")String chatId){
+
+        return !chatId.isEmpty() ? getNewChatData(id,chatId) : chatDataRepository.findAll().stream().filter(data -> data.getRoomId().equals(id)).toList();
+    }
+
+    public List<ChatData> getNewChatData(String roomId ,String lastChatId){
+
+        return chatDataRepository
+                .findAll().stream()
+                .filter(data -> data.getRoomId().equals(roomId))
+                .dropWhile(chatData -> !chatData.getId().equals(lastChatId))
+                .skip(1)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/chatData")

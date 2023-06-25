@@ -14,7 +14,10 @@ interface ConversationProps{
 
 export const SideBar: React.FC<ConversationProps>= ({focusConv, setFocusConv}) => {
 
-    const { data: sideBarData, error, isLoading } = useSWR('http://localhost:8080/api/v1/roomData/sideBar', fetcher)
+    const { data: sideBarData, error, isLoading } =
+        useSWR('http://localhost:8080/api/v1/roomData/sideBar', fetcher,{
+            refreshInterval:10000
+    })
 
     if(!sideBarData) return <></>
 
