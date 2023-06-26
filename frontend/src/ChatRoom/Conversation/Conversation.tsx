@@ -40,21 +40,19 @@ const useChatData = (focusConv: string) => {
     }
 }
 export const Conversation: React.FC<ConversationProps> = ({focusConv}) => {
-    const { roomData, isLoading: isRoomLoading } = useRoomData(focusConv);
+    const {roomData, isLoading: isRoomLoading} = useRoomData(focusConv);
 
-    const { chatData, isLoading: isChatLoading } = useChatData(focusConv);
+    const {chatData, isLoading: isChatLoading} = useChatData(focusConv);
 
     let lastChatId = chatData ? chatData[chatData.length - 1].id : '';
 
-    const { data: newMessage } = useSWR(lastChatId ? `${baseAPI}/roomData/${focusConv.toString()}/ChatData/${lastChatId}` : null, fetcher,{
-        refreshInterval:5000
+    const {data: newMessage} = useSWR(lastChatId ? `${baseAPI}/roomData/${focusConv.toString()}/ChatData/${lastChatId}` : null, fetcher, {
+        refreshInterval: 60000
     });
 
     if (newMessage !== undefined) {
         if (newMessage.length !== 0 && chatData) {
             mutate(`${baseAPI}/roomData/${focusConv.toString()}/ChatData`, [...chatData, ...newMessage], false);
-            console.log("poling")
-            console.log(newMessage)
         }
     }
     return (
@@ -65,8 +63,8 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv}) => {
             </ConversationHeader>
             {/*chatContainerがMessageManagerを許容してくれないみたい*/}
             <MessageManager roomId={focusConv}/>
-              <MessageList>
-                  {chatData ? chatData.map(data =>
+            <MessageList>
+                {chatData ? chatData.map(data =>
                     <Message
                         model={{
                             message: data.message,
@@ -76,8 +74,8 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv}) => {
                             position: "single"
                         }}
                     />
-                    ) : <></>}
-                </MessageList>
+                ) : <></>}
+            </MessageList>
             <MessageInput placeholder="Type Message here"/>
         </ChatContainer>
 

@@ -1,9 +1,9 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
 import {
     ChatContainer, ConversationHeader,
-    MainContainer, Message, MessageInput,
+    MainContainer, MessageInput,
     MessageList
 }
     from '@chatscope/chat-ui-kit-react'
@@ -11,122 +11,39 @@ import { SideBar } from './SideBar'
 import useSWR from 'swr'
 import {Conversation} from "./Conversation/Conversation";
 import {roomDataFetcher} from "../Component/fetcher";
+import { Message } from './Model/Message'
 
+async function chatDataFetch(): Promise<Message[]> {
+    return await fetch('http://localhost:8080/api/v1/chatData')
+        .then(async (response) => {
+            return await response.json()
+        })
+}
 
-const ChatRoom = () => {
-
+const ChatRoom = React.memo(() => {
+    let ignore = false
     const [focusConv,setFocusConv] = useState("");
+    const messageData: Message[] = []
+    useEffect(() => {
+        const data = chatDataFetch().then((data) => {
+            if(!ignore){
+                data.forEach((d) => messageData.push(d));
+            }
+        }).finally(() => ignore = true)
+
+        console.log(messageData)
+    },[])
 
     return (
         <div style={{ position: "relative",height:"569px"}}>
             <MainContainer responsive>
                 <SideBar focusConv={focusConv} setFocusConv={setFocusConv}/>
-                {/*<ChatContainer>
-                    <ConversationHeader>
-                        <ConversationHeader.Content userName="Test" info="Active 10 mins ago"/>
-                    </ConversationHeader>
-                    <MessageList>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "incoming",
-                                position: "single"
-                            }} >
-                            <Message.Footer sender="Emily" sentTime="10:12" />
-                        </Message>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "outgoing",
-                                position: "last"
-                            }} >
-                        </Message>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "incoming",
-                                position: "single"
-                            }} >
-                            <Message.Footer sender="Emily" sentTime="10:12" />
-                        </Message>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "outgoing",
-                                position: "last"
-                            }} >
-                        </Message><Message
-                        model={{
-                            message: 'Hello my friend',
-                            sentTime: 'just now',
-                            sender: 'Joe',
-                            direction: "incoming",
-                            position: "single"
-                        }} >
-                        <Message.Footer sender="Emily" sentTime="10:12" />
-                    </Message>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "outgoing",
-                                position: "last"
-                            }} >
-                        </Message><Message
-                        model={{
-                            message: 'Hello my friend',
-                            sentTime: 'just now',
-                            sender: 'Joe',
-                            direction: "incoming",
-                            position: "single"
-                        }} >
-                        <Message.Footer sender="Emily" sentTime="10:12" />
-                    </Message>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "outgoing",
-                                position: "last"
-                            }} >
-                        </Message><Message
-                        model={{
-                            message: 'Hello my friend',
-                            sentTime: 'just now',
-                            sender: 'Joe',
-                            direction: "incoming",
-                            position: "single"
-                        }} >
-                        <Message.Footer sender="Emily" sentTime="10:12" />
-                    </Message>
-                        <Message
-                            model={{
-                                message: 'Hello my friend',
-                                sentTime: 'just now',
-                                sender: 'Joe',
-                                direction: "outgoing",
-                                position: "last"
-                            }} >
-                        </Message>
-                    </MessageList>
-                    <MessageInput placeholder="Type Message here"/>
-                </ChatContainer>*/}
                 <Conversation focusConv={focusConv}/>
             </MainContainer>
 
         </div>
     );
-}
+});
 
 
 
