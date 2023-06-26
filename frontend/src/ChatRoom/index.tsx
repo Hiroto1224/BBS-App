@@ -11,9 +11,9 @@ import { SideBar } from './SideBar'
 import useSWR from 'swr'
 import {Conversation} from "./Conversation/Conversation";
 import {roomDataFetcher} from "../Component/fetcher";
-import { Message } from './Model/Message'
+import { MessageData } from './Model/Message'
 
-async function chatDataFetch(): Promise<Message[]> {
+async function chatDataFetch(): Promise<MessageData[]> {
     return await fetch('http://localhost:8080/api/v1/chatData')
         .then(async (response) => {
             return await response.json()
@@ -23,22 +23,20 @@ async function chatDataFetch(): Promise<Message[]> {
 const ChatRoom = React.memo(() => {
     let ignore = false
     const [focusConv,setFocusConv] = useState("");
-    const messageData: Message[] = []
+    const [messageData, setMessageData] = useState<MessageData[]>([])
     useEffect(() => {
         const data = chatDataFetch().then((data) => {
             if(!ignore){
                 data.forEach((d) => messageData.push(d));
             }
         }).finally(() => ignore = true)
-
-        console.log(messageData)
     },[])
 
     return (
         <div style={{ position: "relative",height:"569px"}}>
             <MainContainer responsive>
                 <SideBar focusConv={focusConv} setFocusConv={setFocusConv}/>
-                <Conversation focusConv={focusConv}/>
+                <Conversation focusConv={focusConv} messageData={messageData}/>
             </MainContainer>
 
         </div>

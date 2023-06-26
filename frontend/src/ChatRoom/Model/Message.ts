@@ -1,5 +1,5 @@
 
-export interface Message{
+export interface MessageData{
     id: string,
     message: string,
     roomId: string,
