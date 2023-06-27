@@ -40,10 +40,10 @@ public class RoomDataController {
         List<RoomData> roomDataList = roomDataRepository.findAll();
 
         roomDataList.forEach(roomData -> {
-            ChatData chatData = chatController.getLastChatData(roomData.getId());
-            if(chatData != null) {
-                User user = userController.getUserById(chatData.getSendUserId()).getBody();
-                SideBarData sideBarData = new SideBarData(roomData.getId(), roomData.getName(), chatData.getMessage(), Objects.requireNonNull(user).getFirstName());
+            Optional<ChatData> chatData = chatController.getLastChatData(roomData.getId());
+            if(chatData.isPresent()) {
+                User user = userController.getUserById(chatData.get().getSendUserId()).getBody();
+                SideBarData sideBarData = new SideBarData(roomData.getId(), roomData.getName(), chatData.get().getMessage(), Objects.requireNonNull(user).getFirstName());
 
                 sideBarDataList.add(sideBarData);
             }else{

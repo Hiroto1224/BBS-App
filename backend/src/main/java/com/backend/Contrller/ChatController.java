@@ -1,13 +1,12 @@
 package com.backend.Contrller;
 
 
+import com.azure.core.exception.ResourceNotFoundException;
 import com.backend.Model.ChatData;
 import com.backend.Repository.ChatDataRepository;
+import com.backend.Service.ChatDataService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,107 +16,181 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1")
 public class ChatController {
-    private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final ChatDataRepository chatDataRepository;
+    private final ChatDataService chatDataService;
 
-    public ChatController(SimpMessagingTemplate simpMessagingTemplate,ChatDataRepository chatDataRepository) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    @Autowired
+    public ChatController(ChatDataRepository chatDataRepository, ChatDataService chatDataService) {
         this.chatDataRepository = chatDataRepository;
-
+        this.chatDataService = chatDataService;
     }
 
+    /**
+     * Returns a list of all ChatData objects in the chatDataRepository.
+     *
+     * @return A ResponseEntity object containing a list of ChatData objects if chatDataList is not empty,
+     *         otherwise a no content response.
+     */
     @GetMapping("/chatData")
-    public List<ChatData> getChatData() {
-        simpMessagingTemplate.convertAndSend("/topic/app",chatDataRepository.findAll());
-        return chatDataRepository.findAll();
+    public ResponseEntity<List<ChatData>> getChatData() {
+        List<ChatData> chatDataList = chatDataRepository.findAll();
+
+        if(chatDataList.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(chatDataList);
     }
 
+    /**
+     * Returns a ResponseEntity object containing a ChatData object with the specified ID.
+     *
+     * @param id The ID of the ChatData object to return.
+     *
+     * @return A ResponseEntity object containing the ChatData object with the specified ID, if it exists,
+     *         otherwise a not found response.
+     */
     @GetMapping("/chatData/{id}")
     public ResponseEntity<ChatData> getChatDataById(@PathVariable(value = "id")String id){
-        return chatDataRepository.findById(id).map(value ->
-                new ResponseEntity<>(value, HttpStatus.OK))
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(chatDataService.getChatDataById(id));
     }
 
+    /**
+     * Returns a list of ChatData objects associated with a room specified by the ID.
+     *
+     * @param id The ID of the room to retrieve ChatData for.
+     *
+     * @return A list of ChatData objects associated with the specified room ID.
+     */
     @GetMapping("/roomData/{id}/ChatData")
-    public List<ChatData> getChatDataByRoomId(@PathVariable(value = "id")String id){
-        return chatDataRepository.findAll().stream().filter(data -> data.getRoomId().equals(id))
-                .toList();
+    public ResponseEntity<List<ChatData>> getChatDataByRoomId(@PathVariable(value = "id")String id){
+        List<ChatData> chatDataList = chatDataRepository.findByRoomId(id);
+        return !chatDataList.isEmpty()
+                ? ResponseEntity.ok(chatDataList)
+                : ResponseEntity.notFound().build();
     }
+
+    /**
+     * Returns a list of ChatData objects for a given chatId.
+     *
+     * @param id The id of the room where the chat is taking place.
+     * @param chatId The id of the chat for which chat data is requested.
+     *
+     * @return A ResponseEntity object containing a list of ChatData objects if chatId is not null,
+     *         otherwise a bad request response with a null body.
+     */
     @GetMapping("/roomData/{id}/newChatData")
-    public List<ChatData> getChatDataByChatID(@PathVariable(value = "id")String id,@RequestParam("chatId") String chatId){
-
-        return chatId != null ? getNewChatData(id,chatId)
-                : null;
+    public ResponseEntity<List<ChatData>> getChatDataByChatID(@PathVariable(value = "id")String id,@RequestParam("chatId") String chatId){
+        if (chatId != null) {
+            List<ChatData> chatDataList = getNewChatData(id, chatId);
+            return ResponseEntity.ok(chatDataList);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
+    /**
+     * Returns a list of new ChatData objects for a given last chatId and room id.
+     *
+     * @param roomId The id of the room where the chat is taking place.
+     * @param lastChatId The id of the last chat which was retrieved previously.
+     *
+     * @return A list of ChatData objects that were added to the chat after the chat with the lastChatId.
+     *         If no new data is available, an empty list is returned.
+     */
     public List<ChatData> getNewChatData(String roomId ,String lastChatId){
+        List<ChatData> chatDataList = chatDataRepository.findByRoomId(roomId);
 
-        return chatDataRepository
-                .findAll().stream()
-                .filter(data -> data.getRoomId().equals(roomId))
+        return chatDataList.stream()
                 .dropWhile(chatData -> !chatData.getId().equals(lastChatId))
                 .skip(1)
                 .collect(Collectors.toList());
     }
 
 
-    @MessageMapping("/chatData/{roomId}/{userId}")
-    public ChatData createChatData(@PathVariable(value = "roomId")String roomId,
-                                   @PathVariable(value = "userId")String userId,
-                                   @RequestBody String message){
-        ChatData chatData = new ChatData();
-        chatData.setMessage(message);
-        chatData.setRoomId(roomId);
-        chatData.setSendUserId(userId);
+    /**
+     * Creates a new ChatData object for a given message and saves it to the database.
+     *
+     * @param chatData The ChatData object containing the message and other details to be saved.
+     *
+     * @return The ChatData object that was saved to the database.
+     */
+    @PostMapping("/chatData/sendMessage")
+    public ResponseEntity<ChatData> createChatData(@RequestBody ChatData chatData){
         LocalDateTime now = LocalDateTime.now();
         chatData.setTimestamp(now);
-        // simpMessagingTemplate.convertAndSend("/topic/chatData",chatData);
-        return chatDataRepository.save(chatData);
+        ChatData savedChatData = saveChatData(chatData);
+        return ResponseEntity.ok(savedChatData);
     }
 
+    /**
+     * Updates an existing ChatData object with a new message and saves it to the database.
+     *
+     * @param id The id of the ChatData object to be updated.
+     * @param chatDataDto The ChatData object containing the updated message and other details.
+     *
+     * @return ResponseEntity object containing the updated ChatData object if successful, else returns 404 error.
+     *
+     * @throws ResourceNotFoundException if the provided id does not match any records in the database.
+     */
     @PutMapping("/chatData/{id}")
     public ResponseEntity<ChatData> updateChatData(
             @PathVariable(value = "id")String id,
             @RequestBody ChatData chatDataDto) {
-        Optional<ChatData> chatDataOp = chatDataRepository.findById(id);
-
-        if(chatDataOp.isEmpty()){
+        try {
+            ChatData updatedChatData = chatDataService.updateChatDataById(id, chatDataDto);
+            return ResponseEntity.ok(updatedChatData);
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-
-        ChatData chatData = chatDataOp.get();
-        chatData.setMessage(chatDataDto.getMessage());
-        chatData.setTimestamp(chatDataDto.getTimestamp());
-
-        final ChatData updateChatData = chatDataRepository.save(chatData);
-        return ResponseEntity.ok(updateChatData);
     }
 
+    /**
+     * Deletes the ChatData object with the given id from the database.
+     *
+     * @param id The id of the ChatData object to be deleted.
+     *
+     * @return A map containing a "Deleted" key with a boolean value of true if the deletion is successful.
+     *
+     * @throws ResourceNotFoundException if the provided id does not match any records in the database.
+     */
     @DeleteMapping("/chatData/{id}")
     public Map<String ,Boolean> deleteChatData(@PathVariable(value = "id")String id){
-        Optional<ChatData> chatData = chatDataRepository.findById(id);
         Map<String,Boolean> response = new HashMap<>();
-
-        if(chatData.isEmpty()){
-            response.put("ChatData Not Found",Boolean.FALSE);
-        }else {
-            chatDataRepository.delete(chatData.get());
-            response.put("Deleted",Boolean.TRUE);
-        }
-
+        chatDataService.deleteChatDataById(id);
+        response.put("Deleted",Boolean.TRUE);
         return response;
     }
 
-    public ChatData getLastChatData(String id){
-        List<ChatData> chatDataList = getChatDataByRoomId(id);
-        if(chatDataList.isEmpty()){
-            return null;
+
+    /**
+     * Returns the last ChatData object in the list of ChatData objects associated with the given room id.
+     *
+     * @param id The id of the room to get the last ChatData object for.
+     *
+     * @return An Optional object containing the last ChatData object in the list of ChatData objects
+     *         associated with the given room id, or an empty Optional if the list is empty.
+     *
+     * @throws ResourceNotFoundException if the provided id does not match any records in the database.
+     */
+    public Optional<ChatData> getLastChatData(String id){
+        List<ChatData> chatDataList = getChatDataByRoomId(id).getBody();
+
+        if (chatDataList != null && !chatDataList.isEmpty()) {
+            return Optional.of(chatDataList.get(chatDataList.size() - 1));
         }
 
-        return chatDataList.get(chatDataList.size() - 1);
+        return Optional.empty();
     }
 
-
+    /**
+     * Saves the given chatData object to the chatDataRepository.
+     *
+     * @param chatData The ChatData object to be saved.
+     * @return The saved ChatData object.
+     */
+    private ChatData saveChatData(ChatData chatData) {
+        return chatDataRepository.save(chatData);
+    }
 }

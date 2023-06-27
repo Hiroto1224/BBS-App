@@ -3,11 +3,8 @@ import {ChatContainer, ConversationHeader, Message, MessageInput, MessageList} f
 import useSWR, {mutate} from "swr";
 import {fetcher, roomDataFetcher,messageFetcher} from "../../Component/fetcher";
 import { MessageData } from "../Model/Message"
-import { Input } from "./MessageInput/MessageInput";
 import axios from "axios";
-import SockJS from "sockjs-client";
-import {Client, Stomp } from "@stomp/stompjs";
-import { io, Socket } from "socket.io-client";
+
 
 interface ConversationProps {
     focusConv: string
@@ -72,33 +69,6 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
     const [viewMessage,setViewMessage] = useState<MessageData[]>([])
     const [lastChatId, setLastChatId] = useState('')
     const [message, setMessage] = useState('')
-    const [socket, setSocket] = useState<Client | null>(null);
-
-    useEffect(() => {
-        const newClient = new Client({
-            brokerURL: "ws://localhost:8080/ws",
-            onConnect: () => {
-                console.log("connect")
-                newClient.subscribe(`/topic/app`, message => {
-                    setMessage(message.body);
-                });
-            },
-            onStompError: (frame) => {
-                console.log('Broker reported error: ' + frame.headers['message']);
-                console.log('Additional details: ' + frame.body);
-        },
-            onWebSocketError: (error) => {
-                console.log(error)
-            }
-        });
-        newClient.activate();
-
-        setSocket(newClient);
-
-        return () => {
-            newClient.deactivate();
-        };
-    },[]);
 
     useEffect(() => {
         const view = messageData.filter((data) => data.roomId === focusConv);
@@ -119,10 +89,8 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
             sendUserId: "6482935870783b559271d2b3",
             roomId: focusConv
         }
-        // const res = await axios.post(`${baseAPI}/chatData/${focusConv}/6482935870783b559271d2b3`, sendData)
-        if(socket !== null){
-            //socket.publish({destination: `/app/chatData/${focusConv}/6482935870783b559271d2b3`,body:inputText.toString()});
-        }
+        const res = await axios.post(`${baseAPI}/chatData/sendMessage`,sendData)
+
     }
 
     return (
