@@ -22,16 +22,13 @@ async function chatDataFetch(): Promise<MessageData[]> {
 
 const ChatRoom = React.memo(() => {
     let ignore = false
-    const [focusConv,setFocusConv] = useState("");
+    const [focusConv,setFocusConv] = useState("  ");
     const [messageData, setMessageData] = useState<MessageData[]>([])
     useEffect(() => {
         const data = chatDataFetch().then((data) => {
-            if(!ignore){
-                data.forEach((d) => messageData.push(d));
-            }
-        }).finally(() => ignore = true)
+            data.forEach((d) => messageData.push(d));
+        })
     },[])
-
     return (
         <div style={{ position: "relative",height:"569px"}}>
             <MainContainer responsive>
