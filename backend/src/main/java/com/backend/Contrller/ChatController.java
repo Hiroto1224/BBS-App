@@ -6,22 +6,30 @@ import com.backend.Repository.ChatDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
 public class ChatController {
-    @Autowired
-    private ChatDataRepository chatDataRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private final ChatDataRepository chatDataRepository;
+
+    public ChatController(SimpMessagingTemplate simpMessagingTemplate,ChatDataRepository chatDataRepository) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.chatDataRepository = chatDataRepository;
+
+    }
 
     @GetMapping("/chatData")
     public List<ChatData> getChatData() {
+        simpMessagingTemplate.convertAndSend("/topic/app",chatDataRepository.findAll());
         return chatDataRepository.findAll();
     }
 
@@ -37,10 +45,11 @@ public class ChatController {
         return chatDataRepository.findAll().stream().filter(data -> data.getRoomId().equals(id))
                 .toList();
     }
-    @GetMapping("/roomData/{id}/ChatData/{lastChatId}")
-    public List<ChatData> getChatDataByChatID(@PathVariable(value = "id")String id,@PathVariable(value = "lastChatId")String chatId){
+    @GetMapping("/roomData/{id}/newChatData")
+    public List<ChatData> getChatDataByChatID(@PathVariable(value = "id")String id,@RequestParam("chatId") String chatId){
 
-        return !chatId.isEmpty() ? getNewChatData(id,chatId) : chatDataRepository.findAll().stream().filter(data -> data.getRoomId().equals(id)).toList();
+        return chatId != null ? getNewChatData(id,chatId)
+                : null;
     }
 
     public List<ChatData> getNewChatData(String roomId ,String lastChatId){
@@ -53,10 +62,18 @@ public class ChatController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/chatData")
-    public ChatData createChatData(@RequestBody ChatData chatData){
+
+    @MessageMapping("/chatData/{roomId}/{userId}")
+    public ChatData createChatData(@PathVariable(value = "roomId")String roomId,
+                                   @PathVariable(value = "userId")String userId,
+                                   @RequestBody String message){
+        ChatData chatData = new ChatData();
+        chatData.setMessage(message);
+        chatData.setRoomId(roomId);
+        chatData.setSendUserId(userId);
         LocalDateTime now = LocalDateTime.now();
         chatData.setTimestamp(now);
+        // simpMessagingTemplate.convertAndSend("/topic/chatData",chatData);
         return chatDataRepository.save(chatData);
     }
 

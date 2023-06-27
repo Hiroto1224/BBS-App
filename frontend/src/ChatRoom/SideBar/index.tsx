@@ -12,12 +12,15 @@ interface ConversationProps{
     setFocusConv: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const SideBar: React.FC<ConversationProps>= ({focusConv, setFocusConv}) => {
+export const SideBar: React.FC<ConversationProps>= React.memo(({focusConv, setFocusConv}) => {
 
     const { data: sideBarData, error, isLoading } =
         useSWR('http://localhost:8080/api/v1/roomData/sideBar', fetcher,{
-            refreshInterval:10000
-    })
+            refreshInterval: 100,
+            onSuccess: (data => {
+                console.log(data)
+            })
+        })
 
     if(!sideBarData) return <></>
 
@@ -39,5 +42,4 @@ export const SideBar: React.FC<ConversationProps>= ({focusConv, setFocusConv}) =
         </Sidebar>
     )
 
-}
-
+});
