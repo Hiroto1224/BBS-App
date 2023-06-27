@@ -26,7 +26,6 @@ ext {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'com.azure.spring:spring-cloud-azure-starter-data-cosmos'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	compileOnly 'org.projectlombok:lombok'
