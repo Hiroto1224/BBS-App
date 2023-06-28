@@ -17,18 +17,18 @@ public class SendData {
 
     private LocalDateTime timestamp;
 
-    private Boolean isLastMessage;
+    private Boolean lastMessage;
 
     public SendData() {
     }
 
-    public SendData(String roomId, String roomName, String message, String senderName, LocalDateTime timestamp, Boolean isLastMessage) {
+    public SendData(String roomId, String roomName, String message, String senderName, LocalDateTime timestamp, Boolean lastMessage) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.message = message;
         this.senderName = senderName;
         this.timestamp = timestamp;
-        this.isLastMessage = isLastMessage;
+        this.lastMessage = lastMessage;
     }
 
     public void setRoomId(String roomId) {
@@ -52,10 +52,10 @@ public class SendData {
     }
 
     public Boolean getLastMessage() {
-        return isLastMessage;
+        return lastMessage;
     }
 
     public void setLastMessage(Boolean lastMessage) {
-        isLastMessage = lastMessage;
+        this.lastMessage = lastMessage;
     }
 }
