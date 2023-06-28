@@ -2,6 +2,7 @@ import React from "react";
 import { Conversation } from "@chatscope/chat-ui-kit-react"
 
 import useSWR from 'swr'
+import {SidebarData} from "../../Model/SidebarData";
 
 interface ConversationData{
     roomId: string,
@@ -11,7 +12,7 @@ interface ConversationData{
 }
 
 interface ConversationProps{
-    conversation: ConversationData,
+    conversation: SidebarData,
     onClick: (conversationId: string) => void,
     activeId: string
 }
@@ -25,7 +26,7 @@ export const ConversationParent: React.FC<ConversationProps> = ({ conversation,o
         <div onClick={handleClick}>
             <Conversation
                       name={conversation.roomName}
-                      lastSenderName={conversation.senderName}
+                      lastSenderName={conversation.roomName}
                       info={conversation.message}
                       active={conversation.roomId === activeId}
                       />

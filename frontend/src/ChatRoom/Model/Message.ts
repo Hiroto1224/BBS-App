@@ -1,8 +1,9 @@
 
 export interface MessageData{
-    id: string,
-    message: string,
     roomId: string,
-    sendUserId: string,
-    timeStamp: string
+    roomName: string
+    message: string,
+    timestamp: string,
+    senderName: string,
+    lastMessage: boolean
 }

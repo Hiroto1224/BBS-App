@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -35,108 +37,74 @@ public class RoomDataController {
     }
 
     @GetMapping("/chat/overview")
-    public ResponseEntity<Map<String,SendData>> getChatDataOverview() {
+    public ResponseEntity<Map<String,List<SendData>>> getChatDataOverview() {
 
-        List<RoomData> roomDataList = roomDataRepository.findAll();
-        List<ChatData> chatDataList = chatDataRepository.findAll();
+        Map<String, List<SendData>> roomToChatDataMap = roomDataRepository.findAll().stream()
+                .collect(Collectors.toMap(RoomData::getId, this::getChatSendDataList));
 
-        Map<String ,SendData> sendDataMap = new HashMap<>();
-        roomDataList.forEach(roomData -> {
-            chatDataList.forEach(chatData -> {
-                SendData sendData = new SendData();
-                sendData.setRoomId(roomData.getId());
-                sendData.setRoomName(roomData.getName());
-                sendData.setMessage(chatData.getMessage());
-                sendData.setSenderName(chatData.getSendUserName());
-                sendData.setLastMessage(false);
-               sendDataMap.put(roomData.getId(), sendData);
-
-            });
-        });
-
-
-        chatDataList.forEach(chatData -> {
-            SendData sendData = sendDataMap.get(chatData.getRoomId());
-            sendData.setMessage(chatData.getMessage());
-            sendData.setSenderName(chatData.getSendUserName());
-            sendData.setTimestamp(chatData.getTimestamp());
-        });
-
-        if(!sendDataMap.isEmpty()){
-            return ResponseEntity.ok(sendDataMap);
-        }else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-   /*     {
-            Optional<ChatData> chatData = chatController.getLastChatData(roomData.getId());
-            if(chatData.isPresent()) {
-                SendData sendData = new SendData(
-                        roomData.getId(),
-                        roomData.getName(),
-                        chatData.get().getMessage(),
-                        chatData.get().getSendUserId(),
-                        chatData.get().getTimestamp(),
-                        true);
-
-                sendDataList.add(sendData);
-            }else{
-                SendData sendData = new SendData(
-                        roomData.getId(),
-                        roomData.getName(),
-                        "",
-                        "",
-                        LocalDateTime.MIN,
-                        false);
-
-                sendDataList.add(sendData);
-            }
-        if(!sendDataList.isEmpty()){
-            return ResponseEntity.ok(sendDataList);
-        }else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    private SendData createSendDataFromRoom(RoomData roomData){
-        Optional<ChatData> chatDataOp = chatController.getLastChatData()
-    }
-
-    @GetMapping("/chat/")
-    public ResponseEntity<List<SendData>> getSideBarData(){
-        List<SendData> sendDataList = new ArrayList<>();
-
-        List<RoomData> roomDataList = roomDataRepository.findAll();
-
-        roomDataList.forEach(roomData -> {
-            Optional<ChatData> chatData = chatController.getLastChatData(roomData.getId());
-            if (chatData.isPresent()) {
-                SendData sendData = new SendData(
-                        roomData.getId(),
-                        roomData.getName(),
-                        chatData.get().getMessage(),
-                        chatData.get().getSendUserId(),
-                        chatData.get().getTimestamp());
-
-                sendDataList.add(sendData);
-            } else {
-                SendData sendData = new SendData(
-                        roomData.getId(),
-                        roomData.getName(),
-                        "",
-                        "",
-                        LocalDateTime.MIN);
-
-                sendDataList.add(sendData);
+        roomToChatDataMap.forEach((key,value) -> {
+            if(!value.isEmpty()) {
+                value.get(value.size() - 1).setLastMessage(true);
             }
         });
-        if(!sendDataList.isEmpty()){
-            return ResponseEntity.ok(sendDataList);
-        }else {
-            return ResponseEntity.notFound().build();
+
+        return roomToChatDataMap.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(roomToChatDataMap);
+    }
+
+    private List<SendData> getChatSendDataList(RoomData roomData) {
+        List<SendData> sendDataList;
+        sendDataList = chatDataRepository.findAll().stream()
+                .filter(chatData -> Objects.equals(roomData.getId(), chatData.getRoomId()))
+                .map(chatData -> createSendData(roomData, chatData))
+                .toList();
+
+        if(sendDataList.isEmpty()){
+            SendData sendData = new SendData();
+            sendData.setRoomId(roomData.getId());
+            sendData.setRoomName(roomData.getName());
+            sendData.setMessage("No Messages");
+            sendData.setSenderName("None");
+            sendData.setTimestamp(LocalDateTime.MIN);
+            sendData.setLastMessage(true);
+            sendDataList = new ArrayList<>();
+            sendDataList.add(sendData);
         }
-    }*/
+
+        return sendDataList;
+    }
+
+    @GetMapping("/chat/newChatData")
+    public ResponseEntity<Map<String,List<SendData>>> getNewChatData() {
+
+        Map<String, List<SendData>> roomToChatDataMap = roomDataRepository.findAll().stream()
+                .collect(Collectors.toMap(RoomData::getId, this::getChatSendDataList));
+
+        roomToChatDataMap.forEach((key,value) -> {
+            if(!value.isEmpty()) {
+                value.get(value.size() - 1).setLastMessage(true);
+                List<SendData> sendDataList = new ArrayList<>();
+                sendDataList.add(value.get(value.size() - 1));
+                roomToChatDataMap.replace(key,sendDataList);
+            }
+        });
+
+        return roomToChatDataMap.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(roomToChatDataMap);
+    }
+
+    private SendData createSendData(RoomData roomData, ChatData chatData) {
+        SendData sendData = new SendData();
+        sendData.setRoomId(roomData.getId());
+        sendData.setRoomName(roomData.getName());
+        sendData.setMessage(chatData.getMessage());
+        sendData.setSenderName(chatData.getSendUserName());
+        sendData.setTimestamp(chatData.getTimestamp());
+        sendData.setLastMessage(false);
+        return sendData;
+    }
 
     @PostMapping("/roomData")
     public RoomData createRoomData(@RequestBody RoomData roomData){
