@@ -4,6 +4,7 @@ import React from "react";
 import useSWR from 'swr'
 import {ConversationParent} from "./Conversation";
 import {fetcher} from "../../Component/fetcher";
+import { MessageData } from "../Model/Message";
 
 
 interface ConversationData{
@@ -12,6 +13,12 @@ interface ConversationData{
     senderName: string,
     message: string
 }
+
+interface PollingData {
+    conversationData: ConversationData[],
+    messageData: MessageData[]
+}
+
 interface ConversationProps{
     focusConv: string,
     setFocusConv: React.Dispatch<React.SetStateAction<string>>
@@ -20,11 +27,12 @@ interface ConversationProps{
 export const SideBar: React.FC<ConversationProps>= React.memo(({focusConv, setFocusConv}) => {
 
     const { data: sideBarData, error, isLoading } =
-        useSWR<ConversationData[]>('http://localhost:8080/api/v1/roomData/sideBar', fetcher,{
+        useSWR<PollingData>('http://localhost:8080/api/v1/roomData/sideBar', fetcher,{
             refreshInterval: 100
         })
 
     if(!sideBarData) return <></>
+    if(!sideBarData.conversationData) return <></>
 
     const handleConversationClick = (conversation: string) => {
         setFocusConv(conversation);
@@ -33,7 +41,7 @@ export const SideBar: React.FC<ConversationProps>= React.memo(({focusConv, setFo
     return (
         <Sidebar key={"tests"} position="left" scrollable={false}>
             <Search placeholder="Search..." />
-                {sideBarData.map(data =>
+                {sideBarData.conversationData.map(data =>
                     <ConversationParent
                         key={data.roomId}
                         conversation={data}

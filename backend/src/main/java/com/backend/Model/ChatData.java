@@ -1,11 +1,9 @@
 package com.backend.Model;
 
-import jdk.jfr.Timestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
 @Document(collation = "chatData")
 public class ChatData {
@@ -13,7 +11,7 @@ public class ChatData {
     private String id;
     private String message;
     private LocalDateTime timestamp;
-    private String sendUserId;
+    private String sendUserName;
     private String roomId;
 
 
@@ -25,7 +23,7 @@ public class ChatData {
         this.id = id;
         this.message = message;
         this.timestamp = timestamp;
-        this.sendUserId = sendUserId;
+        this.sendUserName = sendUserId;
         this.roomId = roomId;
     }
 
@@ -53,12 +51,12 @@ public class ChatData {
         this.timestamp = timestamp;
     }
 
-    public String getSendUserId() {
-        return sendUserId;
+    public String getSendUserName() {
+        return sendUserName;
     }
 
-    public void setSendUserId(String sendUserId) {
-        this.sendUserId = sendUserId;
+    public void setSendUserName(String sendUserName) {
+        this.sendUserName = sendUserName;
     }
 
     public String getRoomId() {

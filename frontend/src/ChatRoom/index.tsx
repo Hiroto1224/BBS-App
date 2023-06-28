@@ -6,15 +6,13 @@ import {
     MainContainer, MessageInput,
     MessageList
 }
-    from '@chatscope/chat-ui-kit-react'
-import { SideBar } from './SideBar'
-import useSWR from 'swr'
+    from '@chatscope/chat-ui-kit-react';
+import { SideBar } from './SideBar';
 import {Conversation} from "./Conversation/Conversation";
-import {roomDataFetcher} from "../Component/fetcher";
-import { MessageData } from './Model/Message'
+import { MessageData } from './Model/Message';
 
 async function chatDataFetch(): Promise<MessageData[]> {
-    return await fetch('http://localhost:8080/api/v1/chatData')
+    return await fetch('http://localhost:8080/api/v1/chat/overview')
         .then(async (response) => {
             return await response.json()
         })

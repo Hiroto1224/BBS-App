@@ -15,8 +15,12 @@ import java.util.Optional;
 @Service
 public class ChatDataService {
 
+    private final ChatDataRepository chatDataRepository;
+
     @Autowired
-    private ChatDataRepository chatDataRepository;
+    public ChatDataService(ChatDataRepository chatDataRepository) {
+        this.chatDataRepository = chatDataRepository;
+    }
 
     public ChatData getChatDataById(String id) {
         return chatDataRepository.findById(id)

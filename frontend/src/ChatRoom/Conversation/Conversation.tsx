@@ -4,6 +4,7 @@ import useSWR, {mutate} from "swr";
 import {fetcher, roomDataFetcher,messageFetcher} from "../../Component/fetcher";
 import { MessageData } from "../Model/Message"
 import axios from "axios";
+import { Test } from "../../Component/Test";
 
 
 interface ConversationProps {
@@ -81,17 +82,27 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
         }
     },[focusConv])
 
+    const { data: newMessages,isLoading,error } =
+        useSWR(`http://localhost:8080/api/v1/roomData/${focusConv}/newChatData?chatId=`+lastChatId,
+            fetcher,
+            {refreshInterval: 1000, revalidateOnFocus: false})
+
+    if(!isLoading)
+    {
+        console.log(newMessages);
+    }
     // useLongPoling(focusConv,viewMessage,setViewMessage,lastChatId,setLastChatId)
 
     const OnSend = async (inputText: string) => {
-        const sendData = {
+        const send = {
             message: inputText.toString(),
             sendUserId: "6482935870783b559271d2b3",
             roomId: focusConv
         }
-        const res = await axios.post(`${baseAPI}/chatData/sendMessage`,sendData)
+        const res = await axios.post(`${baseAPI}/chatData/sendMessage`,send)
 
     }
+
 
     return (
 
