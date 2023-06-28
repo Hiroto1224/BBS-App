@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.azure.spring:spring-cloud-azure-starter-data-cosmos'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'com.microsoft.signalr:signalr:5.0.7'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
