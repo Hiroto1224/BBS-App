@@ -28,12 +28,12 @@ const ChatRoom = React.memo(() => {
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
     useEffect(() => {
-        const socket = new SockJS('ws://bboardbackend.azurewebsites.net/ws');
+        const socket = new SockJS('https://bboardbackend.azurewebsites.net/ws');
         const stompClient = new Client({
             webSocketFactory: () => socket,
         });
         stompClient.configure({
-            brokerURL: 'ws://bboardbackend.azurewebsites.net/ws',
+            brokerURL: 'https://bboardbackend.azurewebsites.net/ws',
             onConnect: () => {
                 console.log('Connected');
 
