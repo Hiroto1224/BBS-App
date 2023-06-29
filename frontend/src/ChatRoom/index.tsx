@@ -28,6 +28,7 @@ const ChatRoom = React.memo(() => {
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
     const [roomName , setRoomName] = useState("");
+    const [stomp , setStomp] = useState<Client>();
 
     useEffect(() => {
         chatDataFetch().then((res) => {
@@ -66,40 +67,11 @@ const ChatRoom = React.memo(() => {
             onConnect: () => {
                 console.log('Connected');
 
-                stompClient.subscribe('/topic/public',function (greeting){
-                    const json = JSON.parse(greeting.body);
-                    const receiveData: MessageData = {
-                        id: json.id,
-                        roomId: json.roomId,
-                        roomName: json.roomName,
-                        message: json.message,
-                        timestamp: json.timestamp,
-                        senderName: json.senderName,
-                        lastMessage: json.lastMessage
-                    }
-                    setFetchedData(prev => [...prev,receiveData]);
-                    if(receiveData.roomId === focusConv) {
-                        setMessageData(prev => [...prev, receiveData]);
-                    }
-                    setSidebarData(prevState => {
-                        return prevState.map((data) => {
-                            if (data.roomId === receiveData.roomId) {
-                                return {
-                                    ...data,
-                                    senderName: receiveData.senderName,
-                                    message: receiveData.message,
-                                    timeStamp: receiveData.timestamp
-                                };
-                            }
-                            return data;
-                        });
-                    })
-
-                });
-
                 stompClient.publish({destination: '/app/some-endpoint', body: 'Hello,server!'});
             },
         });
+        setStomp(stompClient);
+
         stompClient.activate();
 
         return () => {
@@ -109,7 +81,40 @@ const ChatRoom = React.memo(() => {
         }
     }, [focusConv]);
 
+    useEffect(() => {
+        if(stomp) {
+            stomp.subscribe('/topic/public', function (greeting) {
+                const json = JSON.parse(greeting.body);
+                const receiveData: MessageData = {
+                    id: json.id,
+                    roomId: json.roomId,
+                    roomName: json.roomName,
+                    message: json.message,
+                    timestamp: json.timestamp,
+                    senderName: json.senderName,
+                    lastMessage: json.lastMessage
+                }
+                setFetchedData(prev => [...prev, receiveData]);
+                if (receiveData.roomId === focusConv) {
+                    setMessageData(prev => [...prev, receiveData]);
+                }
+                setSidebarData(prevState => {
+                    return prevState.map((data) => {
+                        if (data.roomId === receiveData.roomId) {
+                            return {
+                                ...data,
+                                senderName: receiveData.senderName,
+                                message: receiveData.message,
+                                timeStamp: receiveData.timestamp
+                            };
+                        }
+                        return data;
+                    });
+                })
 
+            });
+        }
+    }, [focusConv,stomp]);
 
 
     useEffect(() => {
