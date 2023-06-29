@@ -52,4 +52,4 @@ jobs:
           app-name: 'BBoardBackend'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D2E2E21D09C34919AD9CAFC627C8525B }}
-          package: '*.jar'
+          package: 'backend-0.0.1-SNAPSHOT.jar'
