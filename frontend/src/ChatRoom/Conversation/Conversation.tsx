@@ -6,14 +6,29 @@ import { MessageData } from "../Model/Message"
 interface ConversationProps {
     focusConv: string
     messageData: MessageData[] | undefined
+    roomName:string
 }
-// const baseAPI = 'http://localhost:8080/api/v1';
+const baseAPI = 'http://localhost:8080/api/v1';
 
-export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData}) => {
+export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData,roomName}) => {
 
 
     const OnSend = async (inputText: string) => {
-
+        const data = {
+            message: inputText,
+            sendUserName: "hotaru",
+            roomId:focusConv
+        }
+        await fetch(`${baseAPI}/chatData/sendMessage`,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(async (response) => {
+                return await response.json()
+            })
     }
     if (!messageData) return <></>
 
@@ -21,7 +36,7 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
 
         <ChatContainer>
             <ConversationHeader>
-                <ConversationHeader.Content userName={"test"} info={""}/>
+                <ConversationHeader.Content userName={roomName} info={""}/>
             </ConversationHeader>
             <MessageList>
                 {messageData ? messageData.map(data =>
