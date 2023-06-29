@@ -1,10 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {ChatContainer, ConversationHeader, Message, MessageInput, MessageList} from "@chatscope/chat-ui-kit-react";
-import useSWR, {mutate} from "swr";
-import {fetcher, roomDataFetcher,messageFetcher} from "../../Component/fetcher";
 import { MessageData } from "../Model/Message"
 import axios from "axios";
-import { Test } from "../../Component/Test";
 
 
 interface ConversationProps {
@@ -12,57 +9,6 @@ interface ConversationProps {
     messageData: MessageData[] | undefined
 }
 const baseAPI = 'http://localhost:8080/api/v1';
-
-const useRoomData = (focusConv: string) => {
-    const { data: roomData, error } = useSWR(
-        focusConv ? `${baseAPI}/roomData/${focusConv}` :null,
-        roomDataFetcher);
-    return {
-        roomData,
-        isLoading: !error && !roomData,
-        isError: error
-    }
-}
-
-const useChatData = (focusConv: string) => {
-    const { data: chatData, error } = useSWR(
-            focusConv ? `${baseAPI}/roomData/${focusConv.toString()}/ChatData` : null,
-        fetcher);
-    if (chatData !== undefined) {
-        if (chatData.length) {
-            return {
-                chatData,
-                isLoading: !error && !chatData,
-                isError: error
-            }
-        }
-    }
-    return {
-        undefined,
-        isLoading: !error && !chatData,
-        isError: error
-    }
-}
-
-
-const useLongPoling = (roomId:string,viewMessage: MessageData[] ,setViewMessage: React.Dispatch<React.SetStateAction<MessageData[]>>,id: string,setLastMessage: React.Dispatch<React.SetStateAction<string>>) : MessageData[] | null => {
-    const {data: newMessage} = useSWR(
-        `${baseAPI}/roomData/${roomId.toString()}/newChatData?chatId=`+id,
-        messageFetcher, {
-        refreshInterval: 0,
-        onSuccess: (data) => {
-            setViewMessage([...viewMessage ,...data])
-            setLastMessage(data[data.length - 1].id)
-        },onError: (error) => {
-
-        },
-    });
-
-    if (newMessage) return newMessage
-
-    return null
-}
-
 
 export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData}) => {
 
@@ -73,7 +19,7 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
             sendUserName: "Hotaru",
             roomId: focusConv
         }
-        const res = await axios.post(`${baseAPI}/chatData/sendMessage`,send)
+        await axios.post(`${baseAPI}/chatData/sendMessage`,send)
 
     }
     if (!messageData) return <></>
