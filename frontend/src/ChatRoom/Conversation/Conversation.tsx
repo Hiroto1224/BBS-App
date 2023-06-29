@@ -1,24 +1,23 @@
 import React from "react";
 import {ChatContainer, ConversationHeader, Message, MessageInput, MessageList} from "@chatscope/chat-ui-kit-react";
 import { MessageData } from "../Model/Message"
-import axios from "axios";
 
 
 interface ConversationProps {
     focusConv: string
     messageData: MessageData[] | undefined
 }
-const baseAPI = 'http://localhost:8080/api/v1';
+// const baseAPI = 'http://localhost:8080/api/v1';
 
 export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData}) => {
 
 
     const OnSend = async (inputText: string) => {
-        const send = {
+        /*const send = {
             message: inputText.toString(),
             sendUserName: "Hotaru",
             roomId: focusConv
-        }
+        }*/
         
     }
     if (!messageData) return <></>
