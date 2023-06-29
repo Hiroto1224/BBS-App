@@ -14,7 +14,7 @@ import { Client } from '@stomp/stompjs'
 
 
 // const baseAPI = 'http://localhost:8080/api/v1';
-const baseAPI = 'https://bboard.azurewebsites.net/api/v1';
+const baseAPI = 'https://bboardbackend.azurewebsites.net/api/v1';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
     return await fetch(`${baseAPI}/chat/overview`)
         .then(async (response) => {
@@ -28,12 +28,12 @@ const ChatRoom = React.memo(() => {
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
     useEffect(() => {
-        const socket = new SockJS('https://agreeable-bush-0c0d76200.3.azurestaticapps.net/ws');
+        const socket = new SockJS('https://bboardbackend.azurewebsites.net/ws');
         const stompClient = new Client({
             webSocketFactory: () => socket,
         });
         stompClient.configure({
-            brokerURL: 'http://localhost:8080/ws',
+            brokerURL: 'https://bboardbackend.azurewebsites.net/ws',
             onConnect: () => {
                 console.log('Connected');
 

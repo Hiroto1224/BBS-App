@@ -19,8 +19,7 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
             sendUserName: "Hotaru",
             roomId: focusConv
         }
-        await axios.post(`${baseAPI}/chatData/sendMessage`,send)
-
+        
     }
     if (!messageData) return <></>
 
