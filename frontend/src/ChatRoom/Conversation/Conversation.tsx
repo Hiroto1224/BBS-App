@@ -13,6 +13,15 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
 
 
     const OnSend = async (inputText: string) => {
+<<<<<<< HEAD
+=======
+        /*const send = {
+            message: inputText.toString(),
+            sendUserName: "Hotaru",
+            roomId: focusConv
+        }*/
+
+>>>>>>> Develop
     }
     if (!messageData) return <></>
 
