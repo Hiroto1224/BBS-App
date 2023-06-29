@@ -2,63 +2,38 @@ import React, {useEffect, useState} from 'react'
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
 import {
-    ChatContainer, ConversationHeader,
-    MainContainer, Message, MessageInput,
-    MessageList
+    MainContainer
 }
     from '@chatscope/chat-ui-kit-react';
 import { SideBar } from './SideBar';
 import {Conversation} from "./Conversation/Conversation";
 import { MessageData } from './Model/Message';
-import {fetcher, messageFetcher} from "../Component/fetcher";
 import {SidebarData} from "./Model/SidebarData";
-import useSWR from "swr";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs'
 
 
 // const baseAPI = 'http://localhost:8080/api/v1';
-const baseAPI = 'https://agreeable-bush-0c0d76200.3.azurestaticapps.net/api/v1';
+const baseAPI = 'https://bboardbackend.azurewebsites.net/api/v1';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
-    return await fetch(`${baseAPI}/api/v1/chat/overview`)
+    return await fetch(`${baseAPI}/chat/overview`)
         .then(async (response) => {
             return await response.json()
         })
 }
 
-
-
-const useLongPoling = (roomId:string,viewMessage: MessageData[] ,setViewMessage: React.Dispatch<React.SetStateAction<MessageData[]>>,id: string,setLastMessage: React.Dispatch<React.SetStateAction<string>>) : MessageData[] | null => {
-    const {data: newMessage} = useSWR(
-        `${baseAPI}/roomData/${roomId.toString()}/newChatData?chatId=`+id,
-        messageFetcher, {
-            refreshInterval: 5000,
-            onSuccess: (data) => {
-                setViewMessage([...viewMessage ,...data])
-                setLastMessage(data[data.length - 1].id)
-            },onError: (error) => {
-
-            },
-        });
-
-    if (newMessage) return newMessage
-
-    return null
-}
-
 const ChatRoom = React.memo(() => {
     const [focusConv,setFocusConv] = useState("");
-    const [lastId, setLastId] = useState("");
     const [messageData, setMessageData] = useState<MessageData[]>([]);
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
     useEffect(() => {
-        const socket = new SockJS('https://agreeable-bush-0c0d76200.3.azurestaticapps.net/ws');
+        const socket = new SockJS('https://bboardbackend.azurewebsites.net/ws');
         const stompClient = new Client({
             webSocketFactory: () => socket,
         });
         stompClient.configure({
-            brokerURL: 'http://localhost:8080/ws',
+            brokerURL: 'https://bboardbackend.azurewebsites.net/ws',
             onConnect: () => {
                 console.log('Connected');
 
@@ -79,7 +54,7 @@ const ChatRoom = React.memo(() => {
         }
     }, []);
     useEffect(() => {
-        const data = chatDataFetch().then((res) => {
+        chatDataFetch().then((res) => {
             const messages: MessageData[] = [];
             const sidebar: SidebarData[] = [];
             Object.values(res).forEach((data,key) => {

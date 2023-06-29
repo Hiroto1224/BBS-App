@@ -1,15 +1,6 @@
 import React from "react";
-import { Conversation } from "@chatscope/chat-ui-kit-react"
-
-import useSWR from 'swr'
+import { Conversation } from "@chatscope/chat-ui-kit-react";
 import {SidebarData} from "../../Model/SidebarData";
-
-interface ConversationData{
-    roomId: string,
-    roomName: string,
-    senderName: string,
-    message: string
-}
 
 interface ConversationProps{
     conversation: SidebarData,

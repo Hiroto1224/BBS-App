@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000","https://agreeable-bush-0c0d76200-14.eastasia.3.azurestaticapps.net" )
+                .allowedOrigins("https://agreeable-bush-0c0d76200-31.eastasia.3.azurestaticapps.net" )
                 .allowCredentials(true);
     }
 }
