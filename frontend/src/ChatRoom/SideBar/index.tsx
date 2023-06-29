@@ -1,24 +1,9 @@
 
 import {  Search, Sidebar } from "@chatscope/chat-ui-kit-react";
 import React from "react";
-import useSWR from 'swr'
 import {ConversationParent} from "./Conversation";
-import {fetcher} from "../../Component/fetcher";
-import { MessageData } from "../Model/Message";
 import {SidebarData} from "../Model/SidebarData";
 
-
-interface ConversationData{
-    roomId: string,
-    roomName: string,
-    senderName: string,
-    message: string
-}
-
-interface PollingData {
-    conversationData: ConversationData[],
-    messageData: MessageData[]
-}
 
 interface ConversationProps{
     focusConv: string,
