@@ -13,10 +13,10 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs'
 
 
-// const baseAPI = 'http://localhost:8080/api/v1';
-const baseAPI = 'https://bboardbackend.azurewebsites.net/api/v1';
+// const baseAPI = 'http://localhost:8080';
+const baseAPI = 'https://bboardbackend.azurewebsites.net';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
-    return await fetch(`${baseAPI}/chat/overview`)
+    return await fetch(`${baseAPI}/api/v1/chat/overview`)
         .then(async (response) => {
             return await response.json()
         })
@@ -27,32 +27,8 @@ const ChatRoom = React.memo(() => {
     const [messageData, setMessageData] = useState<MessageData[]>([]);
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
-    useEffect(() => {
-        const socket = new SockJS('https://bboardbackend.azurewebsites.net/ws');
-        const stompClient = new Client({
-            webSocketFactory: () => socket,
-        });
-        stompClient.configure({
-            brokerURL: 'https://bboardbackend.azurewebsites.net/ws',
-            onConnect: () => {
-                console.log('Connected');
+    const [roomName , setRoomName] = useState("");
 
-                stompClient.subscribe('/topic/public',function (greeting){
-                    console.log('Message from server' + greeting.body);
-                    console.log("subscribe up")
-                });
-
-                stompClient.publish({destination: '/app/some-endpoint', body: 'Hello,server!'});
-            },
-        });
-        stompClient.activate();
-
-        return () => {
-            if(stompClient.connected) {
-                stompClient.deactivate();
-            }
-        }
-    }, []);
     useEffect(() => {
         chatDataFetch().then((res) => {
             const messages: MessageData[] = [];
@@ -77,9 +53,62 @@ const ChatRoom = React.memo(() => {
             setFetchedData([...messages]);
             setSidebarData([...sidebar])
         })
-
-
     },[])
+
+
+    useEffect(() => {
+        const socket = new SockJS(`${baseAPI}/ws`);
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+        });
+        stompClient.configure({
+            brokerURL: `${baseAPI}/ws`,
+            onConnect: () => {
+                console.log('Connected');
+
+                stompClient.subscribe('/topic/public',function (greeting){
+                    const json = JSON.parse(greeting.body);
+                    const receiveData: MessageData = {
+                        id: json.id,
+                        roomId: json.roomId,
+                        roomName: json.roomName,
+                        message: json.message,
+                        timestamp: json.timestamp,
+                        senderName: json.senderName,
+                        lastMessage: json.lastMessage
+                    }
+                    setFetchedData(prev => [...prev,receiveData]);
+                    if(receiveData.roomId === focusConv) {
+                        setMessageData(prev => [...prev, receiveData]);
+                    }
+                    setSidebarData(prevState => {
+                        return prevState.map((data) => {
+                            if (data.roomId === receiveData.roomId) {
+                                return {
+                                    ...data,
+                                    senderName: receiveData.senderName,
+                                    message: receiveData.message,
+                                    timeStamp: receiveData.timestamp
+                                };
+                            }
+                            return data;
+                        });
+                    })
+
+                });
+
+                stompClient.publish({destination: '/app/some-endpoint', body: 'Hello,server!'});
+            },
+        });
+        stompClient.activate();
+
+        return () => {
+            if(stompClient.connected) {
+                stompClient.deactivate();
+            }
+        }
+    }, []);
+
 
 
 
@@ -87,9 +116,11 @@ const ChatRoom = React.memo(() => {
         const filteredMessages = fetchedData.filter((data:MessageData) =>
         focusConv === data.roomId);
         setMessageData([...filteredMessages]);
-
+        const name = filteredMessages.find((data) => data.roomId === focusConv)?.roomName;
+        setRoomName(name ?? "");
 
     }, [focusConv,fetchedData]);
+
 
     if(!messageData) return <></>
     return (
@@ -97,7 +128,8 @@ const ChatRoom = React.memo(() => {
             <MainContainer responsive>
                 <SideBar focusConv={focusConv} setFocusConv={setFocusConv} sidebarData={sidebarData}/>
                 <Conversation focusConv={focusConv}
-                              messageData={messageData}/>
+                              messageData={messageData}
+                              roomName={roomName}/>
             </MainContainer>
 
         </div>

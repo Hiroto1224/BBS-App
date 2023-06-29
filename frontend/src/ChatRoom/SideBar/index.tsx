@@ -3,6 +3,7 @@ import {  Search, Sidebar } from "@chatscope/chat-ui-kit-react";
 import React from "react";
 import {ConversationParent} from "./Conversation";
 import {SidebarData} from "../Model/SidebarData";
+import {Card} from "@mui/joy";
 
 
 interface ConversationProps{
@@ -18,8 +19,8 @@ export const SideBar: React.FC<ConversationProps>= React.memo(({focusConv, setFo
     };
 
     return (
-        <Sidebar key={"tests"} position="left" scrollable={false}>
-            <Search placeholder="Search..." />
+        <Sidebar key={"tests"} position="left" scrollable={true}>
+            <Card>Conversations</Card>
                 {sidebarData.map(data =>
                     <ConversationParent
                         key={data.roomId}

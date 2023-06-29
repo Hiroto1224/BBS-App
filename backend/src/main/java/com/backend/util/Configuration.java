@@ -12,7 +12,11 @@ public class Configuration {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://agreeable-bush-0c0d76200-31.eastasia.3.azurestaticapps.net")
+                        .allowedOrigins("http://localhost:3000","https://agreeable-bush-0c0d76200-31.eastasia.3.azurestaticapps.net",
+                                "https://agreeable-bush-0c0d76200-32.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-33.eastasia.3.azurestaticapps.net",
+                                "https://agreeable-bush-0c0d76200-34.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-35.eastasia.3.azurestaticapps.net",
+                                "https://agreeable-bush-0c0d76200-36.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-37.eastasia.3.azurestaticapps.net",
+                                "https://agreeable-bush-0c0d76200-38.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-39.eastasia.3.azurestaticapps.net")
                         .allowedMethods("GET", "POST", "PUT", "DELETE","OPTION")
                         .allowedHeaders("*")
                         .allowCredentials(true);
