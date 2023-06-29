@@ -13,6 +13,8 @@ import { MessageData } from './Model/Message';
 import {fetcher, messageFetcher} from "../Component/fetcher";
 import {SidebarData} from "./Model/SidebarData";
 import useSWR from "swr";
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs'
 
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
     return await fetch('http://localhost:8080/api/v1/chat/overview')
@@ -21,20 +23,68 @@ async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
         })
 }
 
+
+const baseAPI = 'http://localhost:8080/api/v1';
+
+const useLongPoling = (roomId:string,viewMessage: MessageData[] ,setViewMessage: React.Dispatch<React.SetStateAction<MessageData[]>>,id: string,setLastMessage: React.Dispatch<React.SetStateAction<string>>) : MessageData[] | null => {
+    const {data: newMessage} = useSWR(
+        `${baseAPI}/roomData/${roomId.toString()}/newChatData?chatId=`+id,
+        messageFetcher, {
+            refreshInterval: 5000,
+            onSuccess: (data) => {
+                setViewMessage([...viewMessage ,...data])
+                setLastMessage(data[data.length - 1].id)
+            },onError: (error) => {
+
+            },
+        });
+
+    if (newMessage) return newMessage
+
+    return null
+}
+
 const ChatRoom = React.memo(() => {
-    const [focusConv,setFocusConv] = useState("  ");
+    const [focusConv,setFocusConv] = useState("");
+    const [lastId, setLastId] = useState("");
     const [messageData, setMessageData] = useState<MessageData[]>([]);
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
+    useEffect(() => {
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+        });
+        stompClient.configure({
+            brokerURL: 'http://localhost:8080/ws',
+            onConnect: () => {
+                console.log('Connected');
 
+                stompClient.subscribe('/topic/public',function (greeting){
+                    console.log('Message from server' + greeting.body);
+                    console.log("subscribe up")
+                });
 
+                stompClient.publish({destination: '/app/some-endpoint', body: 'Hello,server!'});
+            },
+        });
+        stompClient.activate();
+
+        return () => {
+            if(stompClient.connected) {
+                stompClient.deactivate();
+            }
+        }
+    }, []);
     useEffect(() => {
         const data = chatDataFetch().then((res) => {
             const messages: MessageData[] = [];
             const sidebar: SidebarData[] = [];
             Object.values(res).forEach((data,key) => {
                 data.forEach((d:MessageData) => {
-                    messages.push(d);
+                    if(d.message !== "No Messages") {
+                        messages.push(d);
+                    }
                     if(d.lastMessage) {
                         sidebar.push({
                             message: d.message,
@@ -50,17 +100,18 @@ const ChatRoom = React.memo(() => {
             setFetchedData([...messages]);
             setSidebarData([...sidebar])
         })
+
+
     },[])
-    const { data: newMessages,isLoading,error } =
-        useSWR(`http://localhost:8080/api/v1/chat/newChatData`,
-            messageFetcher,
-            {refreshInterval: 1000, revalidateOnFocus: false})
+
 
 
     useEffect(() => {
         const filteredMessages = fetchedData.filter((data:MessageData) =>
         focusConv === data.roomId);
         setMessageData([...filteredMessages]);
+
+
     }, [focusConv,fetchedData]);
 
     if(!messageData) return <></>

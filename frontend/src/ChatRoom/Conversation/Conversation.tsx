@@ -52,7 +52,7 @@ const useLongPoling = (roomId:string,viewMessage: MessageData[] ,setViewMessage:
         refreshInterval: 0,
         onSuccess: (data) => {
             setViewMessage([...viewMessage ,...data])
-            // setLastMessage(data[data.length - 1].id)
+            setLastMessage(data[data.length - 1].id)
         },onError: (error) => {
 
         },
@@ -65,6 +65,7 @@ const useLongPoling = (roomId:string,viewMessage: MessageData[] ,setViewMessage:
 
 
 export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData}) => {
+
 
     const OnSend = async (inputText: string) => {
         const send = {
@@ -81,7 +82,7 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
 
         <ChatContainer>
             <ConversationHeader>
-                {/*<ConversationHeader.Content userName={roomData ? roomData.name : ''} info={""}/>*/}
+                <ConversationHeader.Content userName={"test"} info={""}/>
             </ConversationHeader>
             <MessageList>
                 {messageData ? messageData.map(data =>

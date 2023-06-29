@@ -7,6 +7,7 @@ import com.backend.Repository.ChatDataRepository;
 import com.backend.Service.ChatDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,12 +17,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1")
 public class ChatController {
-
+    private final SimpMessagingTemplate template;
     private final ChatDataRepository chatDataRepository;
     private final ChatDataService chatDataService;
 
     @Autowired
-    public ChatController(ChatDataRepository chatDataRepository, ChatDataService chatDataService) {
+    public ChatController(SimpMessagingTemplate template, ChatDataRepository chatDataRepository, ChatDataService chatDataService) {
+        this.template = template;
         this.chatDataRepository = chatDataRepository;
         this.chatDataService = chatDataService;
     }
@@ -72,25 +74,6 @@ public class ChatController {
     }
 
     /**
-     * Returns a list of ChatData objects for a given chatId.
-     *
-     * @param id The id of the room where the chat is taking place.
-     * @param chatId The id of the chat for which chat data is requested.
-     *
-     * @return A ResponseEntity object containing a list of ChatData objects if chatId is not null,
-     *         otherwise a bad request response with a null body.
-     */
-    @GetMapping("/roomData/{id}/newChatData")
-    public ResponseEntity<List<ChatData>> getChatDataByChatID(@PathVariable(value = "id")String id,@RequestParam("chatId") String chatId){
-        if (chatId != null) {
-            List<ChatData> chatDataList = getNewChatData(id, chatId);
-            return ResponseEntity.ok(chatDataList);
-        } else {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
-    /**
      * Returns a list of new ChatData objects for a given last chatId and room id.
      *
      * @param roomId The id of the room where the chat is taking place.
@@ -121,7 +104,9 @@ public class ChatController {
         LocalDateTime now = LocalDateTime.now();
         chatData.setTimestamp(now);
         ChatData savedChatData = saveChatData(chatData);
+        this.template.convertAndSend("/api/v1/chatData/sendMessage","send server Message");
         return ResponseEntity.ok(savedChatData);
+
     }
 
     /**
