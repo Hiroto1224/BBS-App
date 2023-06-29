@@ -8,8 +8,8 @@ interface ConversationProps {
     messageData: MessageData[] | undefined
     roomName:string
 }
-const baseAPI = 'http://localhost:8080';
-//const baseAPI = 'https://bboardbackend.azurewebsites.net';
+//const baseAPI = 'http://localhost:8080';
+const baseAPI = 'https://bboardbackend.azurewebsites.net';
 export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData,roomName}) => {
 
 
