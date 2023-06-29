@@ -3,7 +3,10 @@ package com.backend.Contrller;
 
 import com.azure.core.exception.ResourceNotFoundException;
 import com.backend.Model.ChatData;
+import com.backend.Model.RoomData;
+import com.backend.Model.SendData;
 import com.backend.Repository.ChatDataRepository;
+import com.backend.Repository.RoomDataRepository;
 import com.backend.Service.ChatDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +23,13 @@ public class ChatController {
     private final SimpMessagingTemplate template;
     private final ChatDataRepository chatDataRepository;
     private final ChatDataService chatDataService;
-
+    private final RoomDataRepository roomDataRepository;
     @Autowired
-    public ChatController(SimpMessagingTemplate template, ChatDataRepository chatDataRepository, ChatDataService chatDataService) {
+    public ChatController(SimpMessagingTemplate template, ChatDataRepository chatDataRepository, ChatDataService chatDataService, RoomDataRepository roomDataRepository) {
         this.template = template;
         this.chatDataRepository = chatDataRepository;
         this.chatDataService = chatDataService;
+        this.roomDataRepository = roomDataRepository;
     }
 
     /**
@@ -104,8 +108,27 @@ public class ChatController {
         LocalDateTime now = LocalDateTime.now();
         chatData.setTimestamp(now);
         ChatData savedChatData = saveChatData(chatData);
-        this.template.convertAndSend("/api/v1/chatData/sendMessage","send server Message");
-        return ResponseEntity.ok(savedChatData);
+
+        Optional<RoomData> roomDataOp = roomDataRepository.findById(savedChatData.getRoomId());
+
+        if(roomDataOp.isPresent()){
+            RoomData roomData = roomDataOp.get();
+
+            SendData sendData = new SendData();
+            sendData.setId(savedChatData.getId());
+            sendData.setRoomId(roomData.getId());
+            sendData.setRoomName(roomData.getName());
+            sendData.setMessage(savedChatData.getMessage());
+            sendData.setSenderName(savedChatData.getSendUserName());
+            sendData.setTimestamp(savedChatData.getTimestamp());
+            sendData.setLastMessage(true);
+
+            this.template.convertAndSend("/topic/public",sendData);
+
+            return ResponseEntity.ok(savedChatData);
+        }
+
+        return ResponseEntity.notFound().build();
 
     }
 

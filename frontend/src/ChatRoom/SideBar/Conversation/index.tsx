@@ -17,10 +17,10 @@ export const ConversationParent: React.FC<ConversationProps> = ({ conversation,o
         <div onClick={handleClick}>
             <Conversation
                       name={conversation.roomName}
-                      lastSenderName={conversation.roomName}
+                      lastSenderName={conversation.senderName}
                       info={conversation.message}
                       active={conversation.roomId === activeId}
-                      />
+            />
         </div>
     )
 }
