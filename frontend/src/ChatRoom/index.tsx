@@ -13,8 +13,8 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs'
 
 
-// const baseAPI = 'http://localhost:8080';
-const baseAPI = 'https://bboardbackend.azurewebsites.net';
+const baseAPI = 'http://localhost:8080';
+//const baseAPI = 'https://bboardbackend.azurewebsites.net';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
     return await fetch(`${baseAPI}/api/v1/chat/overview`)
         .then(async (response) => {
@@ -83,36 +83,40 @@ const ChatRoom = React.memo(() => {
 
     useEffect(() => {
         if(stomp) {
-            stomp.subscribe('/topic/public', function (greeting) {
-                const json = JSON.parse(greeting.body);
-                const receiveData: MessageData = {
-                    id: json.id,
-                    roomId: json.roomId,
-                    roomName: json.roomName,
-                    message: json.message,
-                    timestamp: json.timestamp,
-                    senderName: json.senderName,
-                    lastMessage: json.lastMessage
-                }
-                setFetchedData(prev => [...prev, receiveData]);
-                if (receiveData.roomId === focusConv) {
-                    setMessageData(prev => [...prev, receiveData]);
-                }
-                setSidebarData(prevState => {
-                    return prevState.map((data) => {
-                        if (data.roomId === receiveData.roomId) {
-                            return {
-                                ...data,
-                                senderName: receiveData.senderName,
-                                message: receiveData.message,
-                                timeStamp: receiveData.timestamp
-                            };
+            stomp.configure({
+                onConnect: () => {
+                    stomp.subscribe('/topic/public', function (greeting) {
+                        const json = JSON.parse(greeting.body);
+                        const receiveData: MessageData = {
+                            id: json.id,
+                            roomId: json.roomId,
+                            roomName: json.roomName,
+                            message: json.message,
+                            timestamp: json.timestamp,
+                            senderName: json.senderName,
+                            lastMessage: json.lastMessage
                         }
-                        return data;
-                    });
-                })
+                        setFetchedData(prev => [...prev, receiveData]);
+                        if (receiveData.roomId === focusConv) {
+                            setMessageData(prev => [...prev, receiveData]);
+                        }
+                        setSidebarData(prevState => {
+                            return prevState.map((data) => {
+                                if (data.roomId === receiveData.roomId) {
+                                    return {
+                                        ...data,
+                                        senderName: receiveData.senderName,
+                                        message: receiveData.message,
+                                        timeStamp: receiveData.timestamp
+                                    };
+                                }
+                                return data;
+                            });
+                        })
 
-            });
+                    });
+                }
+            })
         }
     }, [focusConv,stomp]);
 
