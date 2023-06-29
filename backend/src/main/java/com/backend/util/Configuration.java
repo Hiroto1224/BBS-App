@@ -12,7 +12,7 @@ public class Configuration {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000","https://agreeable-bush-0c0d76200-25.eastasia.3.azurestaticapps.net")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE","OPTION")
                         .allowedHeaders("*")
                         .allowCredentials(true);
