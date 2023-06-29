@@ -1,5 +1,5 @@
 
-import {  Search, Sidebar } from "@chatscope/chat-ui-kit-react";
+import { Sidebar } from "@chatscope/chat-ui-kit-react";
 import React from "react";
 import {ConversationParent} from "./Conversation";
 import {SidebarData} from "../Model/SidebarData";
