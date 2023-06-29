@@ -107,7 +107,7 @@ const ChatRoom = React.memo(() => {
                 stompClient.deactivate();
             }
         }
-    }, []);
+    }, [focusConv]);
 
 
 
