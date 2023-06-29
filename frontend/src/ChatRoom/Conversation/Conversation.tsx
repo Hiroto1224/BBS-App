@@ -8,8 +8,8 @@ interface ConversationProps {
     messageData: MessageData[] | undefined
     roomName:string
 }
-const baseAPI = 'http://localhost:8080/api/v1';
-
+const baseAPI = 'http://localhost:8080';
+//const baseAPI = 'https://bboardbackend.azurewebsites.net';
 export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", messageData,roomName}) => {
 
 
@@ -19,7 +19,7 @@ export const Conversation: React.FC<ConversationProps> = ({focusConv = "test", m
             sendUserName: "hotaru",
             roomId:focusConv
         }
-        await fetch(`${baseAPI}/chatData/sendMessage`,{
+        await fetch(`${baseAPI}/api/v1/chatData/sendMessage`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
