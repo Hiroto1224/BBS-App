@@ -8,6 +8,7 @@ import com.backend.Repository.RoomDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,14 +18,22 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1")
 public class RoomDataController {
+
+    private final RoomDataRepository roomDataRepository;
+    private final ChatDataRepository chatDataRepository;
+    private final ChatController chatController;
+
+    private final UserController userController;
+    private final SimpMessagingTemplate template;
+
     @Autowired
-    private RoomDataRepository roomDataRepository;
-    @Autowired
-    private ChatDataRepository chatDataRepository;
-    @Autowired
-    private ChatController chatController;
-    @Autowired
-    private UserController userController;
+    public RoomDataController(RoomDataRepository roomDataRepository, ChatDataRepository chatDataRepository, ChatController chatController, UserController userController, SimpMessagingTemplate template) {
+        this.roomDataRepository = roomDataRepository;
+        this.chatDataRepository = chatDataRepository;
+        this.chatController = chatController;
+        this.userController = userController;
+        this.template = template;
+    }
 
     @GetMapping("/roomData")
     public List<RoomData> getRoomData() {return roomDataRepository.findAll(); }
@@ -47,7 +56,8 @@ public class RoomDataController {
                 value.get(value.size() - 1).setLastMessage(true);
             }
         });
-
+        this.template.convertAndSend("/topic/public","Some Response");
+        System.out.println("aaaaaaaaaaaaaaa");
         return roomToChatDataMap.isEmpty()
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(roomToChatDataMap);
@@ -62,6 +72,7 @@ public class RoomDataController {
 
         if(sendDataList.isEmpty()){
             SendData sendData = new SendData();
+            sendData.setId("");
             sendData.setRoomId(roomData.getId());
             sendData.setRoomName(roomData.getName());
             sendData.setMessage("No Messages");
@@ -75,33 +86,34 @@ public class RoomDataController {
         return sendDataList;
     }
 
-    @GetMapping("/chat/newChatData")
-    public ResponseEntity<Map<String,List<SendData>>> getNewChatData() {
+    @GetMapping("/roomData/{id}/newChatData")
+    public ResponseEntity<List<SendData>> getNewData(@PathVariable(value = "id")String id,@RequestParam("chatId") String chatId){
+        if (chatId != null) {
+            List<SendData> sendDataList = new ArrayList<>();
+            List<ChatData> chatDataList = chatDataRepository.findByRoomId(id);
+            RoomData roomData = roomDataRepository.findById(id).get();
+            boolean check = false;
+            chatDataList.forEach((chatData -> {
+                if (Objects.equals(chatData.getId(), chatId) || check) {
+                    sendDataList.add(createSendData(roomData,chatData));
+                }
+            }));
 
-        Map<String, List<SendData>> roomToChatDataMap = roomDataRepository.findAll().stream()
-                .collect(Collectors.toMap(RoomData::getId, this::getChatSendDataList));
-
-        roomToChatDataMap.forEach((key,value) -> {
-            if(!value.isEmpty()) {
-                value.get(value.size() - 1).setLastMessage(true);
-                List<SendData> sendDataList = new ArrayList<>();
-                sendDataList.add(value.get(value.size() - 1));
-                roomToChatDataMap.replace(key,sendDataList);
-            }
-        });
-
-        return roomToChatDataMap.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(roomToChatDataMap);
+            return ResponseEntity.ok(sendDataList);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     private SendData createSendData(RoomData roomData, ChatData chatData) {
         SendData sendData = new SendData();
+        sendData.setId(chatData.getId());
         sendData.setRoomId(roomData.getId());
         sendData.setRoomName(roomData.getName());
         sendData.setMessage(chatData.getMessage());
         sendData.setSenderName(chatData.getSendUserName());
         sendData.setTimestamp(chatData.getTimestamp());
+        System.out.println(sendData.getTimestamp());
         sendData.setLastMessage(false);
         return sendData;
     }

@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 @Getter
 public class SendData {
 
+    @Getter
+    private String id;
+
     private String roomId;
 
     private String roomName;
@@ -22,13 +25,18 @@ public class SendData {
     public SendData() {
     }
 
-    public SendData(String roomId, String roomName, String message, String senderName, LocalDateTime timestamp, Boolean lastMessage) {
+    public SendData(String id, String roomId, String roomName, String message, String senderName, LocalDateTime timestamp, Boolean lastMessage) {
+        this.id = id;
         this.roomId = roomId;
         this.roomName = roomName;
         this.message = message;
         this.senderName = senderName;
         this.timestamp = timestamp;
         this.lastMessage = lastMessage;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setRoomId(String roomId) {

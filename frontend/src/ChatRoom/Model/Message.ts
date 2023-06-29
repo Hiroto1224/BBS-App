@@ -1,5 +1,6 @@
 
 export interface MessageData{
+    id: string,
     roomId: string,
     roomName: string
     message: string,
