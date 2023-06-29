@@ -16,15 +16,17 @@ import useSWR from "swr";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs'
 
+
+// const baseAPI = 'http://localhost:8080/api/v1';
+const baseAPI = 'https://agreeable-bush-0c0d76200.3.azurestaticapps.net/api/v1';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
-    return await fetch('http://localhost:8080/api/v1/chat/overview')
+    return await fetch(`${baseAPI}/api/v1/chat/overview`)
         .then(async (response) => {
             return await response.json()
         })
 }
 
 
-const baseAPI = 'http://localhost:8080/api/v1';
 
 const useLongPoling = (roomId:string,viewMessage: MessageData[] ,setViewMessage: React.Dispatch<React.SetStateAction<MessageData[]>>,id: string,setLastMessage: React.Dispatch<React.SetStateAction<string>>) : MessageData[] | null => {
     const {data: newMessage} = useSWR(
@@ -51,7 +53,7 @@ const ChatRoom = React.memo(() => {
     const [sidebarData, setSidebarData] = useState<SidebarData[]>([]);
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
     useEffect(() => {
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('https://agreeable-bush-0c0d76200.3.azurestaticapps.net/ws');
         const stompClient = new Client({
             webSocketFactory: () => socket,
         });
