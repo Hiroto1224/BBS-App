@@ -171,9 +171,9 @@ const ChatRoom = React.memo(() => {
                                   userName={userName}
                     />
                     <Dialog open={button} title = "we">
-                        <TextField id="outlined-basic" label="Outlined" variant="outlined" onChange={onSubmit}/>
+                        <TextField id="outlined-basic" label="Input UserName" variant="outlined" onChange={onSubmit}/>
                         <Button onClick={() => {setButton(!button);}}>
-                            Click me
+                            始める
                         </Button>
                     </Dialog>
                 </MainContainer>
