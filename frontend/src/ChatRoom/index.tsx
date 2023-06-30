@@ -1,26 +1,37 @@
 import React, {useEffect, useState} from 'react'
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css'
-import {
-    MainContainer
-}
-    from '@chatscope/chat-ui-kit-react';
+import { MainContainer } from '@chatscope/chat-ui-kit-react';
 import { SideBar } from './SideBar';
 import {Conversation} from "./Conversation/Conversation";
 import { MessageData } from './Model/Message';
 import {SidebarData} from "./Model/SidebarData";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs'
+import {Button, Dialog, TextField } from '@mui/material';
 
 
-//const baseAPI = 'http://localhost:8080';
-const baseAPI = 'https://bboardbackend.azurewebsites.net';
+const baseAPI = 'http://localhost:8080';
+//const baseAPI = 'https://bboardbackend.azurewebsites.net';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
     return await fetch(`${baseAPI}/api/v1/chat/overview`)
         .then(async (response) => {
             return await response.json()
         })
 }
+
+const dateGenerator = (timestamp: string) => {
+
+    const date = new Date(timestamp);
+    const time =  ((date.getMonth()+1)+
+        "/"+date.getDate()+
+        " "+date.getHours()+
+        ":"+date.getMinutes()+
+        ":"+date.getSeconds());
+
+    return time;
+}
+
 
 const ChatRoom = React.memo(() => {
     const [focusConv,setFocusConv] = useState("");
@@ -29,22 +40,33 @@ const ChatRoom = React.memo(() => {
     const [fetchedData, setFetchedData] = useState<MessageData[]>([]);
     const [roomName , setRoomName] = useState("");
     const [stomp , setStomp] = useState<Client>();
-
+    const [userName, setUserName] = useState("");
+    const [button, setButton] = useState(true);
     useEffect(() => {
         chatDataFetch().then((res) => {
             const messages: MessageData[] = [];
             const sidebar: SidebarData[] = [];
             Object.values(res).forEach((data,key) => {
                 data.forEach((d:MessageData) => {
+
                     if(d.message !== "No Messages") {
-                        messages.push(d);
+
+                        messages.push({
+                            id: d.id,
+                            roomId: d.roomId,
+                            roomName: d.roomName,
+                            message: d.message,
+                            timestamp: dateGenerator(d.timestamp),
+                            senderName: d.senderName,
+                            lastMessage: d.lastMessage
+                        });
                     }
                     if(d.lastMessage) {
                         sidebar.push({
                             message: d.message,
                             roomId: d.roomId,
                             roomName: d.roomName,
-                            timeStamp: d.timestamp,
+                            timeStamp: dateGenerator(d.timestamp),
                             senderName: d.senderName
                         });
                     }
@@ -79,7 +101,7 @@ const ChatRoom = React.memo(() => {
                 stompClient.deactivate();
             }
         }
-    }, [focusConv]);
+    }, []);
 
     useEffect(() => {
         if(stomp) {
@@ -87,15 +109,17 @@ const ChatRoom = React.memo(() => {
                 onConnect: () => {
                     stomp.subscribe('/topic/public', function (greeting) {
                         const json = JSON.parse(greeting.body);
+
                         const receiveData: MessageData = {
                             id: json.id,
                             roomId: json.roomId,
                             roomName: json.roomName,
                             message: json.message,
-                            timestamp: json.timestamp,
+                            timestamp: dateGenerator(json.timestamp),
                             senderName: json.senderName,
                             lastMessage: json.lastMessage
                         }
+
                         setFetchedData(prev => [...prev, receiveData]);
                         if (receiveData.roomId === focusConv) {
                             setMessageData(prev => [...prev, receiveData]);
@@ -107,7 +131,7 @@ const ChatRoom = React.memo(() => {
                                         ...data,
                                         senderName: receiveData.senderName,
                                         message: receiveData.message,
-                                        timeStamp: receiveData.timestamp
+                                        timeStamp: dateGenerator(receiveData.timestamp)
                                     };
                                 }
                                 return data;
@@ -130,16 +154,29 @@ const ChatRoom = React.memo(() => {
 
     }, [focusConv,fetchedData]);
 
+    const onSubmit = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUserName(event.target.value);
+    }
+
 
     if(!messageData) return <></>
     return (
-        <div style={{ position: "relative",height:"569px"}}>
-            <MainContainer responsive>
-                <SideBar focusConv={focusConv} setFocusConv={setFocusConv} sidebarData={sidebarData}/>
-                <Conversation focusConv={focusConv}
-                              messageData={messageData}
-                              roomName={roomName}/>
-            </MainContainer>
+        <div style={{position: "relative", height: "569px"}}>
+
+                <MainContainer responsive>
+                    <SideBar focusConv={focusConv} setFocusConv={setFocusConv} sidebarData={sidebarData}/>
+                    <Conversation focusConv={focusConv}
+                                  messageData={messageData}
+                                  roomName={roomName}
+                                  userName={userName}
+                    />
+                    <Dialog open={button} title = "we">
+                        <TextField id="outlined-basic" label="Outlined" variant="outlined" onChange={onSubmit}/>
+                        <Button onClick={() => {setButton(!button);}}>
+                            Click me
+                        </Button>
+                    </Dialog>
+                </MainContainer>
 
         </div>
     );
