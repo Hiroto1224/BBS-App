@@ -11,8 +11,8 @@ import { Client } from '@stomp/stompjs'
 import {Button, Dialog, TextField } from '@mui/material';
 
 
-//const baseAPI = 'http://localhost:8080';
-const baseAPI = 'https://bboardbackend.azurewebsites.net';
+const baseAPI = 'http://localhost:8080';
+//const baseAPI = 'https://bboardbackend.azurewebsites.net';
 async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
     return await fetch(`${baseAPI}/api/v1/chat/overview`)
         .then(async (response) => {
