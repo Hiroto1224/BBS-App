@@ -20,7 +20,7 @@ export const SideBar: React.FC<ConversationProps>= React.memo(({focusConv, setFo
 
     return (
         <Sidebar key={"tests"} position="left" scrollable={true}>
-            <Card>Conversations</Card>
+            <Card>チャットルーム</Card>
                 {sidebarData.map(data =>
                     <ConversationParent
                         key={data.roomId}
@@ -31,5 +31,4 @@ export const SideBar: React.FC<ConversationProps>= React.memo(({focusConv, setFo
                 )}
         </Sidebar>
     )
-
 });
