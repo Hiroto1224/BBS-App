@@ -14,11 +14,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry){
         System.out.println("websocket");
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000","https://agreeable-bush-0c0d76200-31.eastasia.3.azurestaticapps.net",
-                        "https://agreeable-bush-0c0d76200-32.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-33.eastasia.3.azurestaticapps.net",
-                        "https://agreeable-bush-0c0d76200-34.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-35.eastasia.3.azurestaticapps.net",
-                        "https://agreeable-bush-0c0d76200-36.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-37.eastasia.3.azurestaticapps.net",
-                        "https://agreeable-bush-0c0d76200-38.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-39.eastasia.3.azurestaticapps.net"
+                .setAllowedOrigins("http://localhost:3000","https://agreeable-bush-0c0d76200-38.eastasia.3.azurestaticapps.net",
+                        "https://agreeable-bush-0c0d76200-39.eastasia.3.azurestaticapps.net",
+                        "https://agreeable-bush-0c0d76200-40.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-41.eastasia.3.azurestaticapps.net",
+                        "https://agreeable-bush-0c0d76200-42.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-43.eastasia.3.azurestaticapps.net",
+                        "https://agreeable-bush-0c0d76200-44.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-45.eastasia.3.azurestaticapps.net",
+                        "https://agreeable-bush-0c0d76200-46.eastasia.3.azurestaticapps.net","https://agreeable-bush-0c0d76200-47.eastasia.3.azurestaticapps.net"
                         )
                 .withSockJS();
     }
