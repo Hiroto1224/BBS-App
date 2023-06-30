@@ -9,6 +9,7 @@ import {SidebarData} from "./Model/SidebarData";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs'
 import {Button, Dialog, TextField } from '@mui/material';
+import { formatToTimeZone } from 'date-fns-timezone';
 
 
 //const baseAPI = 'http://localhost:8080';
@@ -23,13 +24,9 @@ async function chatDataFetch(): Promise<Map<string,MessageData[]>> {
 const dateGenerator = (timestamp: string) => {
 
     const date = new Date(timestamp);
-    const time =  ((date.getMonth()+1)+
-        "/"+date.getDate()+
-        " "+date.getHours()+
-        ":"+date.getMinutes()+
-        ":"+date.getSeconds());
+    const localTime = formatToTimeZone(date, 'MM-DD HH:mm:ss', {timeZone: 'Asia/Tokyo'});
 
-    return time;
+    return localTime;
 }
 
 
@@ -185,3 +182,4 @@ const ChatRoom = React.memo(() => {
 
 
 export default ChatRoom;
+
